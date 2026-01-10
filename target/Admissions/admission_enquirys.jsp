@@ -35,7 +35,7 @@ function calculateAgeDetailed(dob, targetId) {
         years--;
         months += 12;
     }
-    document.getElementById(targetId).innerText = years+"Y "+months+"M "+days+"D";
+    document.getElementById(targetId).innerText = years+"Year "+months+"Monts "+days+"Days";
 }
 
 // ===== FILTER =====
