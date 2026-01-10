@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admission Enquiry Form</title>
+<title>SRS Admission Enquiry Form(2026-27)</title>
 
 <style>
 * { box-sizing: border-box; }
