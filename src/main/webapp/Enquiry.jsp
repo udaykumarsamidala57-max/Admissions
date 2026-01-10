@@ -129,7 +129,9 @@ button:hover {
     <img src="Logo.png" alt="School Logo">
 </div>
 <h2>📘 Admission Enquiry Form (2026-27)</h2>
-
+<p style="color:#dc2626; font-weight:600; margin-top:6px; ">
+    ⚠️ Please fill all details exactly as per the Birth Certificate / Aadhar Card.
+</p>
 <form action="SaveEnquiryServlet" method="post" onsubmit="return validateBeforeSubmit();">
 
 <!-- Student Details -->

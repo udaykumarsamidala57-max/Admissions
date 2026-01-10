@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admission Enquiry Form</title>
+<title>SRS Admission Enquiry Form(2026-27)</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -109,13 +109,26 @@ button:hover {
     color: red;
     font-size: 14px;
 }
+.logo-box {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo-box img {
+    max-width: 160px;   /* adjust size if needed */
+    width: 100%;
+    height: auto;
+}
 </style>
 
 </head>
 <body>
 
 <div class="form-box">
-<h2>📘 Admission Enquiry Form</h2>
+<div class="logo-box">
+    <img src="Logo.png" alt="School Logo">
+</div>
+<h2>📘 Admission Enquiry Form (2026-27)</h2>
 
 <form action="SaveEnquiryServlet" method="post" onsubmit="return validateBeforeSubmit();">
 
@@ -212,17 +225,7 @@ button:hover {
 <div class="section-title">Other Details</div>
 <div class="form-grid">
 
-<div class="form-field">
-<label>Segment</label>
-<select name="segment">
-<option value="">-- Select Segment --</option>
-<option>General</option>
-<option>SMIORE</option>
-<option>SVPS</option>
-<option>SVPSGEN</option>
-<option>RTE</option>
-</select>
-</div>
+
 
 <div class="form-field">
 <label>Place From</label>

@@ -1,0 +1,121 @@
+body {
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    background: #f3f6fb;
+    margin: 0;
+    padding: 0;
+}
+
+.box {
+    width: 98%;
+    margin: 15px auto;
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 22px;
+}
+
+/* ===== Toolbar ===== */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* ===== Filters ===== */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.filters select,
+.filters input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+/* ===== Buttons ===== */
+button {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-primary { background: #0f172a; color: #fff; }
+.btn-success { background: #16a34a; color: #fff; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-warning { background: #f59e0b; color: #fff; }
+
+/* ===== Table ===== */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+}
+
+th {
+    background: #0f172a;
+    color: #fff;
+    padding: 12px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    text-align: left;
+}
+
+td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 9px 8px;
+    vertical-align: middle;
+}
+
+tr:nth-child(even) { background: #f8fafc; }
+tr:hover { background: #eef2ff; }
+
+/* ===== Inputs inside table ===== */
+td input, td select {
+    width: 100%;
+    padding: 6px 7px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+}
+
+/* ===== Badges ===== */
+.badge {
+    background: #e5e7eb;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* ===== Action buttons ===== */
+.action-btns {
+    white-space: nowrap;
+}
+
+/* ===== Edit row highlight ===== */
+.edit-row {
+    background: #fff7ed !important;
+}
+
+/* ===== Scroll table ===== */
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+}
