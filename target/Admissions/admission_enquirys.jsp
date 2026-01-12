@@ -85,8 +85,8 @@ function downloadExcel() {
 <div class="box">
 
 <div class="toolbar">
-    <h2>📋 Admission Enquiry Register</h2>
-    <button class="btn-primary" onclick="downloadExcel()">⬇ Export Excel</button>
+    <h2>Admission Enquiry Register</h2>
+    <button class="btn-primary" onclick="downloadExcel()">Export Excel</button>
 </div>
 
 <div class="filters">

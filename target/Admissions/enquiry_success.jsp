@@ -115,7 +115,7 @@ p {
 
 <script>
 function goBack() {
-    window.location.href = "Enquiry_Form.jsp";
+    window.location.href = "Enquiry.jsp";
 }
 </script>
 

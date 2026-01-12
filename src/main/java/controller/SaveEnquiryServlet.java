@@ -1,57 +1,68 @@
 package controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.ResultSet;
-import java.io.PrintWriter;
 
-import bean.DBUtil;   // ✅ IMPORTANT IMPORT
+import bean.DBUtil;
 
 @WebServlet("/SaveEnquiryServlet")
 public class SaveEnquiryServlet extends HttpServlet {
-	
-	
-	  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	            throws ServletException, IOException {
 
-	        String mobile = request.getParameter("mobile");
+    // =======================
+    // ✅ AJAX MOBILE CHECK
+    // =======================
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-	        boolean exists = false;
+        String mobile = request.getParameter("mobile");
 
-	        try (Connection con = DBUtil.getConnection()) {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
 
-	            String sql = "SELECT enquiry_id FROM admission_enquiry WHERE father_mobile_no = ? OR mother_mobile_no = ?";
-	            PreparedStatement ps = con.prepareStatement(sql);
-	            ps.setString(1, mobile);
-	            ps.setString(2, mobile);
+        if (mobile == null || mobile.trim().isEmpty()) {
+            out.print("0");
+            return;
+        }
 
-	            ResultSet rs = ps.executeQuery();
+        int count = 0;
 
-	            if (rs.next()) {
-	                exists = true;
-	            }
+        try (Connection con = DBUtil.getConnection()) {
 
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
+            String sql = "SELECT COUNT(*) FROM admission_enquiry WHERE father_mobile_no = ? OR mother_mobile_no = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, mobile);
+            ps.setString(2, mobile);
 
-	        response.setContentType("text/plain");
-	        PrintWriter out = response.getWriter();
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
 
-	        if (exists) {
-	            out.print("EXISTS");
-	        } else {
-	            out.print("OK");
-	        }
-	    }
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.print("0");
+            return;
+        }
 
+        if (count >= 2) {
+            out.print("BLOCK");
+        } else {
+            out.print(count); // 0 or 1
+        }
+    }
+
+    // =======================
+    // ✅ FORM SUBMIT
+    // =======================
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -75,6 +86,8 @@ public class SaveEnquiryServlet extends HttpServlet {
         String segment = request.getParameter("segment");
         String placeFrom = request.getParameter("place_from");
 
+        if (segment == null) segment = "";
+
         Connection con = null;
         PreparedStatement ps = null;
 
@@ -82,7 +95,33 @@ public class SaveEnquiryServlet extends HttpServlet {
             // 2. Get DB connection
             con = DBUtil.getConnection();
 
-            // 3. SQL
+            // ===============================
+            // 🛡️ SERVER-SIDE MOBILE LIMIT CHECK
+            // ===============================
+            String checkSql = "SELECT COUNT(*) FROM admission_enquiry WHERE father_mobile_no = ? OR mother_mobile_no = ?";
+            PreparedStatement checkPs = con.prepareStatement(checkSql);
+            checkPs.setString(1, fatherMobile);
+            checkPs.setString(2, fatherMobile);
+
+            ResultSet rs = checkPs.executeQuery();
+            int count = 0;
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+            if (count >= 2) {
+                response.setContentType("text/html;charset=UTF-8");
+                PrintWriter out = response.getWriter();
+                out.println("<script>");
+                out.println("alert('❌ This mobile number already used 2 times. Further submissions are blocked!');");
+                out.println("window.history.back();");
+                out.println("</script>");
+                return; // ⛔ STOP INSERT
+            }
+
+            // ===============================
+            // ✅ INSERT DATA
+            // ===============================
             String sql = "INSERT INTO admission_enquiry ("
                     + "student_name, gender, date_of_birth, class_of_admission, admission_type, "
                     + "father_name, father_occupation, father_organization, father_mobile_no, "
@@ -92,7 +131,6 @@ public class SaveEnquiryServlet extends HttpServlet {
 
             ps = con.prepareStatement(sql);
 
-            // 4. Set values
             ps.setString(1, studentName);
             ps.setString(2, gender);
             ps.setString(3, dob);
@@ -117,12 +155,23 @@ public class SaveEnquiryServlet extends HttpServlet {
             if (result > 0) {
                 response.sendRedirect("enquiry_success.jsp");
             } else {
-                response.sendRedirect("enquiry_failed.jsp");
+                response.setContentType("text/html;charset=UTF-8");
+                PrintWriter out = response.getWriter();
+                out.println("<script>");
+                out.println("alert('❌ Failed to submit enquiry. Please try again!');");
+                out.println("window.history.back();");
+                out.println("</script>");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("enquiry_failed.jsp");
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>");
+            out.println("alert('❌ Server error! Please try again later.');");
+            out.println("window.history.back();");
+            out.println("</script>");
+
         } finally {
             try {
                 if (ps != null) ps.close();
