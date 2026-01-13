@@ -93,11 +93,13 @@ function downloadExcel() {
     <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
     <select id="filterClass" onchange="applyFilters()">
         <option value="">All Classes</option>
-        <option>LKG</option><option>UKG</option><option>1</option><option>2</option><option>3</option>
+        <option>LKG</option><option>UKG</option><option>Class 1</option><option>Class 2</option><option>Class 3</option>
+        <option>Class 4</option><option>Class 5</option><option>Class 6</option><option>Class 7</option>
+        <option>Class 8</option><option>Class 9</option>
     </select>
     <select id="filterType" onchange="applyFilters()">
         <option value="">All Types</option>
-        <option>Dayscholar</option><option>Hosteller</option>
+        <option>Dayscholar</option><option>Residential</option>
     </select>
 </div>
 

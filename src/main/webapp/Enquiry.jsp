@@ -184,7 +184,7 @@ button:hover {
 <option value="" disabled selected>-- Select Admission Type --</option>
 <option>Dayscholar</option>
 <option>Residential</option>
-<option>Semi Residential</option>
+
 </select>
 </div>
 

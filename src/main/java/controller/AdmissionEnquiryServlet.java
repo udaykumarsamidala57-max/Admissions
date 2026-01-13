@@ -15,6 +15,25 @@ public class AdmissionEnquiryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        // ================= SESSION CHECK =================
+        HttpSession sess = req.getSession(false);
+        if (sess == null || sess.getAttribute("username") == null) {
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
+        String role = (String) sess.getAttribute("role");
+        String dept = (String) sess.getAttribute("department");
+
+        if (!"Global".equalsIgnoreCase(role)
+                && !"Incharge".equalsIgnoreCase(role)
+                && !"Admin".equalsIgnoreCase(role)) {
+            resp.setContentType("text/html");
+            resp.getWriter().println("<h3 style='color:red;'>Access Denied</h3>");
+            return;
+        }
+
+        // ================= GET ACTION =================
         String action = req.getParameter("action");
 
         try (Connection con = DBUtil.getConnection()) {
