@@ -1,5 +1,18 @@
 <%@ page import="javax.sql.rowset.CachedRowSet" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%@ page session="true" %>
 <!DOCTYPE html>
+<%
+HttpSession sess = request.getSession(false);
+if (sess == null || sess.getAttribute("username") == null) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+
+String role = (String) sess.getAttribute("role");
+String User = (String) sess.getAttribute("username");
+
+%>
 <html>
 <head>
 <title>Admission Enquiry Register</title>
@@ -87,6 +100,9 @@ function downloadExcel() {
 <div class="toolbar">
     <h2>Admission Enquiry Register</h2>
     <button class="btn-primary" onclick="downloadExcel()">Export Excel</button>
+<button class="btn-primary" onclick="location.href='Logout.jsp'">
+    <i class="fas fa-sign-out-alt"></i> Logout
+</button>
 </div>
 
 <div class="filters">
@@ -137,9 +153,12 @@ String type=rs.getString("admission_type");
 <td><%=rs.getString("segment")%></td>
 <td class="action-btns">
     <button class="btn-warning" onclick="editRow(<%=id%>)">Edit</button>
-    <a href="admission?action=delete&id=<%=id%>" onclick="return confirm('Delete this record?')">
-        <button class="btn-danger" type="button">Delete</button>
-    </a>
+
+    <% if ("Global".equalsIgnoreCase(role)) { %>
+        <a href="admission?action=delete&id=<%=id%>" onclick="return confirm('Delete this record?')">
+            <button class="btn-danger" type="button">Delete</button>
+        </a>
+    <% } %>
 </td>
 </tr>
 

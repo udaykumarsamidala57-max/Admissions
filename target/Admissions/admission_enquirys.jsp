@@ -1,5 +1,18 @@
 <%@ page import="javax.sql.rowset.CachedRowSet" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%@ page session="true" %>
 <!DOCTYPE html>
+<%
+HttpSession sess = request.getSession(false);
+if (sess == null || sess.getAttribute("username") == null) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+
+String role = (String) sess.getAttribute("role");
+String User = (String) sess.getAttribute("username");
+
+%>
 <html>
 <head>
 <title>Admission Enquiry Register</title>
@@ -93,11 +106,13 @@ function downloadExcel() {
     <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
     <select id="filterClass" onchange="applyFilters()">
         <option value="">All Classes</option>
-        <option>LKG</option><option>UKG</option><option>1</option><option>2</option><option>3</option>
+        <option>LKG</option><option>UKG</option><option>Class 1</option><option>Class 2</option><option>Class 3</option>
+        <option>Class 4</option><option>Class 5</option><option>Class 6</option><option>Class 7</option>
+        <option>Class 8</option><option>Class 9</option>
     </select>
     <select id="filterType" onchange="applyFilters()">
         <option value="">All Types</option>
-        <option>Dayscholar</option><option>Hosteller</option>
+        <option>Dayscholar</option><option>Residential</option>
     </select>
 </div>
 
@@ -135,9 +150,11 @@ String type=rs.getString("admission_type");
 <td><%=rs.getString("segment")%></td>
 <td class="action-btns">
     <button class="btn-warning" onclick="editRow(<%=id%>)">Edit</button>
+    <% if (!"Global".equalsIgnoreCase(role)){ %>
     <a href="admission?action=delete&id=<%=id%>" onclick="return confirm('Delete this record?')">
         <button class="btn-danger" type="button">Delete</button>
     </a>
+    <%} %>
 </td>
 </tr>
 
