@@ -249,32 +249,42 @@ button:hover {
 let mobileExists = false;
 let notEligible = false;
 
-// Age calculation
+// 🎯 FIXED CUT-OFF DATE
+const CUTOFF_DATE = new Date(2026, 4, 31); // 31-05-2026 (Month starts from 0)
+
+// =========================
+// AGE CALCULATION
+// =========================
 function calculateAge() {
     let dobValue = document.getElementById("dob").value;
     if (!dobValue) return;
 
+    // input type="date" gives yyyy-mm-dd → directly usable
     let dob = new Date(dobValue);
-    let today = new Date();
 
-    let years = today.getFullYear() - dob.getFullYear();
-    let months = today.getMonth() - dob.getMonth();
-    let days = today.getDate() - dob.getDate();
+    let years = CUTOFF_DATE.getFullYear() - dob.getFullYear();
+    let months = CUTOFF_DATE.getMonth() - dob.getMonth();
+    let days = CUTOFF_DATE.getDate() - dob.getDate();
 
     if (days < 0) {
         months--;
-        let prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        let prevMonth = new Date(CUTOFF_DATE.getFullYear(), CUTOFF_DATE.getMonth(), 0);
         days += prevMonth.getDate();
     }
+
     if (months < 0) {
         years--;
         months += 12;
     }
 
-    document.getElementById("age").value = years + " Years " + months + " Months " + days + " Days";
+    document.getElementById("age").value =
+        years + " Years " + months + " Months " + days + " Days";
 }
 
-// ✅ Eligibility Check
+
+// =========================
+// ELIGIBILITY CHECK
+// =========================
 function checkEligibility() {
     let dobValue = document.getElementById("dob").value;
     let cls = document.getElementById("classSelect").value;
@@ -283,18 +293,7 @@ function checkEligibility() {
 
     let dob = new Date(dobValue);
 
-    // ✅ Cutoff date: 31-05-2026
-    let cutoff = new Date("2026-05-31");
-
-    let age = cutoff.getFullYear() - dob.getFullYear();
-    if (
-        cutoff.getMonth() < dob.getMonth() ||
-        (cutoff.getMonth() == dob.getMonth() && cutoff.getDate() < dob.getDate())
-    ) {
-        age--;
-    }
-
-    // ✅ New school rule
+    // ✅ Only for these classes
     let requiredAge = {
         "Nursery": 3,
         "LKG": 4,
@@ -304,25 +303,45 @@ function checkEligibility() {
 
     let msg = document.getElementById("eligibilityMsg");
 
-    if (requiredAge[cls] !== undefined) {
-        if (age < requiredAge[cls]) {
-            msg.innerHTML = "❌ Not Eligible for " + cls + 
-                " (Age should be " + requiredAge[cls] + "+ as on 31-05-2026)";
-            document.getElementById("submitBox").style.display = "none";
-            notEligible = true;
-        } else {
-            msg.innerHTML = "✅ Eligible for " + cls;
-            document.getElementById("submitBox").style.display = "block";
-            notEligible = false;
-        }
+    // 🟡 If class is NOT in the list → no eligibility check
+    if (requiredAge[cls] === undefined) {
+        msg.innerHTML = "ℹ Age eligibility will be verified manually for this class.";
+        msg.className = "success-msg";
+        document.getElementById("submitBox").style.display = "block";
+        notEligible = false;
+        return;
+    }
+
+    // Date when child completes required age
+    let eligibleDate = new Date(
+        dob.getFullYear() + requiredAge[cls],
+        dob.getMonth(),
+        dob.getDate()
+    );
+
+    if (eligibleDate > CUTOFF_DATE) {
+        msg.innerHTML =
+            "❌ Not Eligible for " + cls +
+            " (Must complete " + requiredAge[cls] +
+            " years on or before 31-05-2026)";
+        msg.className = "error-msg";
+        document.getElementById("submitBox").style.display = "none";
+        notEligible = true;
     } else {
-        msg.innerHTML = "";
+        msg.innerHTML =
+            "✅ Eligible for " + cls +
+            " (Completed " + requiredAge[cls] +
+            " years as on 31-05-2026)";
+        msg.className = "success-msg";
         document.getElementById("submitBox").style.display = "block";
         notEligible = false;
     }
 }
 
-// Existing mobile check stays same
+
+// =========================
+// MOBILE CHECK (UNCHANGED)
+// =========================
 function checkMobile(mobile) {
     if (mobile.length != 10) return;
 
@@ -362,6 +381,10 @@ function checkMobile(mobile) {
     xhr.send();
 }
 
+
+// =========================
+// FINAL SUBMIT VALIDATION
+// =========================
 function validateBeforeSubmit() {
     if (mobileExists || notEligible) {
         alert("Please fix errors before submitting!");
@@ -370,6 +393,7 @@ function validateBeforeSubmit() {
     return true;
 }
 </script>
+
 
 </body>
 </html>
