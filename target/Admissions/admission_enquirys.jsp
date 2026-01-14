@@ -409,7 +409,8 @@ window.onload = function(){
 <div class="toolbar">
     <h2>Admission Enquiry Register</h2>
     <div>
-        <button class="btn blue" onclick="openDashboard()">Dashboard</button>
+       <button class="btn blue" onclick="location.href='dashboard'">Dashboard</button>
+
         <button class="btn" onclick="downloadExcel()">Export</button>
         <button class="btn red" onclick="location.href='Logout.jsp'">Logout</button>
     </div>
