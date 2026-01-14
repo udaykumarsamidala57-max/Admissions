@@ -1,5 +1,0 @@
-controller\LoginServlet.class
-bean\DBUtil.class
-controller\SaveEnquiryServlet.class
-controller\VerifyOtpServlet.class
-controller\AdmissionEnquiryServlet.class

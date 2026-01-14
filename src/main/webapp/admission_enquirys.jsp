@@ -226,6 +226,7 @@ function calculateAgeDetailed(dob, targetId){
         years + "Y " + months + "M " + days + "D";
 }
 
+/* ================= FILTERS ================= */
 function applyFilters(){
     let c = document.getElementById("filterClass").value.toLowerCase();
     let t = document.getElementById("filterType").value.toLowerCase();
@@ -233,9 +234,9 @@ function applyFilters(){
 
     document.querySelectorAll(".data-row").forEach(r=>{
         let td = r.querySelectorAll("td");
-        let cls = td[5].innerText.toLowerCase();
-        let typ = td[6].innerText.toLowerCase();
-        let txt = r.innerText.toLowerCase();
+        let cls = normalize(td[5].innerText);
+        let typ = normalize(td[6].innerText);
+        let txt = normalize(r.innerText);
 
         let show = true;
         if(c && cls !== c) show=false;
@@ -246,6 +247,7 @@ function applyFilters(){
     });
 }
 
+/* ================= EXPORT ================= */
 function downloadExcel(){
     let rows = document.querySelectorAll(".data-row");
     let csv = "ID,Student,Gender,DOB,Age,Class,Type,Father,F Occ,F Org,F Mobile,Mother,M Occ,M Org,M Mobile,Place,Segment\n";
@@ -266,61 +268,139 @@ function downloadExcel(){
     a.click();
 }
 
+/* ================= DASHBOARD ================= */
+
+function normalize(txt){
+    return txt
+        .replace(/\u00A0/g," ")
+        .replace(/\s+/g," ")
+        .trim()
+        .toLowerCase();
+}
+
 function openDashboard(){
     buildDashboard();
     document.getElementById("dashboardModal").style.display="flex";
 }
+
 function closeDashboard(){
     document.getElementById("dashboardModal").style.display="none";
 }
 
 function buildDashboard(){
-    let data = {};
-    document.querySelectorAll(".data-row").forEach(r=>{
-        if(r.style.display==="none") return;
-        let td = r.querySelectorAll("td");
-        let cls = td[5].innerText.trim();
-        let typ = td[6].innerText.toLowerCase();
 
-        if(!data[cls]) data[cls] = {d:0, r:0};
-        if(typ.includes("day")) data[cls].d++;
-        else data[cls].r++;
+    let mainTable = document.querySelector(".table-wrap table");
+    if(!mainTable){
+        alert("Main table not found!");
+        return;
+    }
+
+    let rows = mainTable.querySelectorAll("tr.data-row");
+
+    console.log("Rows found for dashboard:", rows.length);
+
+    let data = {};
+
+    rows.forEach(r => {
+
+        if (r.style.display === "none") return;
+
+        let tds = r.querySelectorAll("td");
+        if (tds.length < 7) return;
+
+        // ✅ CLASS
+        let cls = tds[5].textContent
+            .replace(/\u00A0/g," ")
+            .replace(/\s+/g," ")
+            .trim();
+
+        // ✅ TYPE (from span badge)
+        let typ = tds[6].textContent
+            .replace(/\u00A0/g," ")
+            .replace(/\s+/g," ")
+            .trim()
+            .toLowerCase();
+
+        if (!cls || !typ) return;
+
+        if (!data[cls]) {
+            data[cls] = { d: 0, r: 0 };
+        }
+
+        if (typ.includes("day"))
+            data[cls].d++;
+        else if (typ.includes("res"))
+            data[cls].r++;
     });
 
     let tb = document.getElementById("dashBody");
     tb.innerHTML = "";
 
-    // Define custom order
-    const order = ["Nursery","LKG","UKG","Class 1","Class 2","Class 3","Class 4","Class 5","Class 6","Class 7","Class 8","Class 9"];
+    let grandDay = 0;
+    let grandRes = 0;
 
-    let gd = 0, gr = 0;
+    let classes = Object.keys(data).sort((a,b)=>{
+        const order = ["Nursery","LKG","UKG"];
 
-    // Loop through the custom order
-    order.forEach(c => {
-        if(data[c]){
-            gd += data[c].d;
-            gr += data[c].r;
-            tb.innerHTML += `<tr>
-                <td>${c}</td>
-                <td>${data[c].d}</td>
-                <td>${data[c].r}</td>
-                <td><b>${data[c].d + data[c].r}</b></td>
-            </tr>`;
+        let ia = order.indexOf(a);
+        let ib = order.indexOf(b);
+
+        if(ia !== -1 || ib !== -1){
+            if(ia === -1) return 1;
+            if(ib === -1) return -1;
+            return ia - ib;
         }
+
+        let na = parseInt(a.replace(/\D/g,"")) || 0;
+        let nb = parseInt(b.replace(/\D/g,"")) || 0;
+        return na - nb;
     });
 
-    // Add totals row
-    tb.innerHTML += `<tr>
+    classes.forEach(cls => {
+
+        let d = data[cls].d;
+        let r = data[cls].r;
+        let t = d + r;
+
+        grandDay += d;
+        grandRes += r;
+
+        tb.innerHTML += `
+        <tr>
+            <td>${cls}</td>
+            <td>${d}</td>
+            <td>${r}</td>
+            <td><b>${t}</b></td>
+        </tr>`;
+    });
+
+    tb.innerHTML += `
+    <tr>
         <th>Total</th>
-        <th>${gd}</th>
-        <th>${gr}</th>
-        <th>${gd + gr}</th>
+        <th>${grandDay}</th>
+        <th>${grandRes}</th>
+        <th>${grandDay + grandRes}</th>
     </tr>`;
 }
 
-function openEditModal(id){ document.getElementById("editModal"+id).style.display="flex"; }
-function closeEditModal(id){ document.getElementById("editModal"+id).style.display="none"; }
+/* ================= EDIT MODAL ================= */
+function openEditModal(id){ 
+    document.getElementById("editModal"+id).style.display="flex"; 
+}
+function closeEditModal(id){ 
+    document.getElementById("editModal"+id).style.display="none"; 
+}
+
+/* ================= AUTO AGE CALC ================= */
+window.onload = function(){
+    document.querySelectorAll(".age-cell").forEach(td=>{
+        let dob = td.getAttribute("data-dob");
+        let id = td.id;
+        calculateAgeDetailed(dob, id);
+    });
+}
 </script>
+
 </head>
 
 <body>
@@ -329,7 +409,8 @@ function closeEditModal(id){ document.getElementById("editModal"+id).style.displ
 <div class="toolbar">
     <h2>Admission Enquiry Register</h2>
     <div>
-        <button class="btn blue" onclick="openDashboard()">Dashboard</button>
+       <button class="btn blue" onclick="location.href='dashboard'">Dashboard</button>
+
         <button class="btn" onclick="downloadExcel()">Export</button>
         <button class="btn red" onclick="location.href='Logout.jsp'">Logout</button>
     </div>
@@ -361,11 +442,15 @@ function closeEditModal(id){ document.getElementById("editModal"+id).style.displ
 
 <%
 CachedRowSet rs = (CachedRowSet)request.getAttribute("list");
+java.util.List<Integer> ids = new java.util.ArrayList<>();
+
 while(rs!=null && rs.next()){
-int id = rs.getInt("enquiry_id");
-String dob = rs.getString("date_of_birth");
-String cls = rs.getString("class_of_admission");
-String type = rs.getString("admission_type");
+    int id = rs.getInt("enquiry_id");
+    ids.add(id);
+
+    String dob = rs.getString("date_of_birth");
+    String cls = rs.getString("class_of_admission");
+    String type = rs.getString("admission_type");
 %>
 
 <tr class="data-row">
@@ -373,8 +458,8 @@ String type = rs.getString("admission_type");
 <td><%=rs.getString("student_name")%></td>
 <td><%=rs.getString("gender")%></td>
 <td><%=dob%></td>
-<td id="ageV<%=id%>"></td>
-<script>calculateAgeDetailed("<%=dob%>","ageV<%=id%>");</script>
+<td class="age-cell" data-dob="<%=dob%>" id="ageV<%=id%>"></td>
+
 <td><%=cls%></td>
 <td>
 <% if(type.toLowerCase().contains("day")){ %>
@@ -400,15 +485,28 @@ String type = rs.getString("admission_type");
 <td>
 <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
 <% if("Global".equalsIgnoreCase(role)){ %>
-<a href="admission?action=delete&id=<%=id%>"
-   onclick="return confirm('Delete this record?')">
-<button type="button" class="btn red"> Delete</button>
+<a href="admission?action=delete&id=<%=id%>" onclick="return confirm('Delete this record?')">
+<button type="button" class="btn red">Delete</button>
 </a>
 <% } %>
 </td>
 </tr>
 
-<!-- EDIT MODAL -->
+<% } %>
+
+</table>
+</div>
+
+<!-- ===== EDIT MODALS (OUTSIDE TABLE) ===== -->
+<%
+rs.beforeFirst();
+while(rs!=null && rs.next()){
+    int id = rs.getInt("enquiry_id");
+    String dob = rs.getString("date_of_birth");
+    String cls = rs.getString("class_of_admission");
+    String type = rs.getString("admission_type");
+%>
+
 <div id="editModal<%=id%>" class="modal-overlay" style="display:none;">
 <div class="modal-box">
 
@@ -422,80 +520,21 @@ String type = rs.getString("admission_type");
 
 <div class="form-grid">
 
-<div>
-<label>Student Name</label>
-<input name="student_name" value="<%=rs.getString("student_name")%>">
-</div>
-
-<div>
-<label>Gender</label>
-<input name="gender" value="<%=rs.getString("gender")%>">
-</div>
-
-<div>
-<label>Date of Birth</label>
-<input type="date" name="date_of_birth" value="<%=dob%>">
-</div>
-
-<div>
-<label>Class of Admission</label>
-<input name="class_of_admission" value="<%=cls%>">
-</div>
-
-<div>
-<label>Admission Type</label>
-<input name="admission_type" value="<%=type%>">
-</div>
-
-<div>
-<label>Segment</label>
-<input name="segment" value="<%=rs.getString("segment")%>">
-</div>
-
-<div>
-<label>Father Name</label>
-<input name="father_name" value="<%=rs.getString("father_name")%>">
-</div>
-
-<div>
-<label>Father Occupation</label>
-<input name="father_occupation" value="<%=rs.getString("father_occupation")%>">
-</div>
-
-<div>
-<label>Father Organization</label>
-<input name="father_organization" value="<%=rs.getString("father_organization")%>">
-</div>
-
-<div>
-<label>Father Mobile No</label>
-<input name="father_mobile_no" value="<%=rs.getString("father_mobile_no")%>">
-</div>
-
-<div>
-<label>Mother Name</label>
-<input name="mother_name" value="<%=rs.getString("mother_name")%>">
-</div>
-
-<div>
-<label>Mother Occupation</label>
-<input name="mother_occupation" value="<%=rs.getString("mother_occupation")%>">
-</div>
-
-<div>
-<label>Mother Organization</label>
-<input name="mother_organization" value="<%=rs.getString("mother_organization")%>">
-</div>
-
-<div>
-<label>Mother Mobile No</label>
-<input name="mother_mobile_no" value="<%=rs.getString("mother_mobile_no")%>">
-</div>
-
-<div>
-<label>Place From</label>
-<input name="place_from" value="<%=rs.getString("place_from")%>">
-</div>
+<div><label>Student Name</label><input name="student_name" value="<%=rs.getString("student_name")%>"></div>
+<div><label>Gender</label><input name="gender" value="<%=rs.getString("gender")%>"></div>
+<div><label>Date of Birth</label><input type="date" name="date_of_birth" value="<%=dob%>"></div>
+<div><label>Class of Admission</label><input name="class_of_admission" value="<%=cls%>"></div>
+<div><label>Admission Type</label><input name="admission_type" value="<%=type%>"></div>
+<div><label>Segment</label><input name="segment" value="<%=rs.getString("segment")%>"></div>
+<div><label>Father Name</label><input name="father_name" value="<%=rs.getString("father_name")%>"></div>
+<div><label>Father Occupation</label><input name="father_occupation" value="<%=rs.getString("father_occupation")%>"></div>
+<div><label>Father Organization</label><input name="father_organization" value="<%=rs.getString("father_organization")%>"></div>
+<div><label>Father Mobile</label><input name="father_mobile_no" value="<%=rs.getString("father_mobile_no")%>"></div>
+<div><label>Mother Name</label><input name="mother_name" value="<%=rs.getString("mother_name")%>"></div>
+<div><label>Mother Occupation</label><input name="mother_occupation" value="<%=rs.getString("mother_occupation")%>"></div>
+<div><label>Mother Organization</label><input name="mother_organization" value="<%=rs.getString("mother_organization")%>"></div>
+<div><label>Mother Mobile</label><input name="mother_mobile_no" value="<%=rs.getString("mother_mobile_no")%>"></div>
+<div><label>Place From</label><input name="place_from" value="<%=rs.getString("place_from")%>"></div>
 
 </div>
 
@@ -509,11 +548,9 @@ String type = rs.getString("admission_type");
 
 <% } %>
 
-</table>
-</div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ===== DASHBOARD ===== -->
 <div id="dashboardModal" class="modal-overlay" style="display:none;">
 <div class="modal-box">
 <div class="modal-header">
@@ -530,4 +567,5 @@ String type = rs.getString("admission_type");
 </div>
 
 </body>
+
 </html>
