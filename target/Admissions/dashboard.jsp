@@ -325,7 +325,7 @@ tfoot td:last-child { border-bottom-right-radius: 16px; }
     <div class="title">Admission Enquiry Dashboard</div>
 
     <div class="actions">
-        <button class="btn btn-dashboard" onclick="location.href='admission'">Dashboard</button>
+        <button class="btn btn-dashboard" onclick="location.href='admission'">Enquiries</button>
         <button class="btn btn-export" onclick="location.href='exportExcel'">Export</button>
         <button class="btn btn-logout" onclick="location.href='Logout.jsp'">Logout</button>
     </div>

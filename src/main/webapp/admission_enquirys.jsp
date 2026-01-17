@@ -437,7 +437,7 @@ window.onload = function(){
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
 <th>F Mobile</th><th>Mother</th><th>M Occ</th><th>M Org</th>
-<th>M Mobile</th><th>Place</th><th>Segment</th><th>Action</th>
+<th>M Mobile</th><th>Place</th><th>Segment</th><th>Action</th><th>Apporval</th>
 </tr>
 
 <%
@@ -454,7 +454,7 @@ while(rs!=null && rs.next()){
 %>
 
 <tr class="data-row">
-<td><%=id%></td>
+<td><%="E26"+id%></td>
 <td><%=rs.getString("student_name")%></td>
 <td><%=rs.getString("gender")%></td>
 <td><%=dob%></td>
@@ -488,6 +488,31 @@ while(rs!=null && rs.next()){
 <a href="admission?action=delete&id=<%=id%>" onclick="return confirm('Delete this record?')">
 <button type="button" class="btn red">Delete</button>
 </a>
+<% } %>
+</td>
+<td>
+<% 
+if("Global".equalsIgnoreCase(role)){ 
+String approved = rs.getString("approved");
+
+if(approved == null || !"Approved".equalsIgnoreCase(approved)) { %>
+    <form action="admission" method="get" style="display:inline;">
+        <input type="hidden" name="action" value="approve">
+        <input type="hidden" name="id" value="<%= id %>">
+        <button type="submit"
+                style="padding:6px 12px;
+                       background:#22c55e;
+                       border:none;
+                       color:white;
+                       border-radius:8px;
+                       font-weight:700;
+                       cursor:pointer;">
+            Approve
+        </button>
+    </form>
+<% } else { %>
+    <span style="color:#15803d;font-weight:900;">Approved</span>
+<% } %>
 <% } %>
 </td>
 </tr>
