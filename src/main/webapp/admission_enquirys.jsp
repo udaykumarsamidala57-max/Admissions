@@ -454,7 +454,7 @@ while(rs!=null && rs.next()){
 %>
 
 <tr class="data-row">
-<td><%="E26"+id%></td>
+<td><%="E26-"+id%></td>
 <td><%=rs.getString("student_name")%></td>
 <td><%=rs.getString("gender")%></td>
 <td><%=dob%></td>
