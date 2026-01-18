@@ -406,15 +406,11 @@ window.onload = function(){
 <body>
 <div class="app">
 
-<div class="toolbar">
-    <h2>Admission Enquiry Register</h2>
-    <div>
-       <button class="btn blue" onclick="location.href='dashboard'">Dashboard</button>
+<!-- ===== HEADER ===== -->
 
-        <button class="btn" onclick="downloadExcel()">Export</button>
-        <button class="btn red" onclick="location.href='Logout.jsp'">Logout</button>
-    </div>
-</div>
+   
+    <jsp:include page="common_header.jsp" />
+
 
 <div class="filters">
     <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
@@ -437,7 +433,7 @@ window.onload = function(){
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
 <th>F Mobile</th><th>Mother</th><th>M Occ</th><th>M Org</th>
-<th>M Mobile</th><th>Place</th><th>Segment</th><th>Action</th>
+<th>M Mobile</th><th>Place</th><th>Segment</th><th>Action</th><th>Apporval</th>
 </tr>
 
 <%
@@ -454,7 +450,7 @@ while(rs!=null && rs.next()){
 %>
 
 <tr class="data-row">
-<td><%=id%></td>
+<td><%="E26-"+id%></td>
 <td><%=rs.getString("student_name")%></td>
 <td><%=rs.getString("gender")%></td>
 <td><%=dob%></td>
@@ -492,6 +488,7 @@ while(rs!=null && rs.next()){
 </td>
 <td>
 <% 
+if("Global".equalsIgnoreCase(role)){ 
 String approved = rs.getString("approved");
 
 if(approved == null || !"Approved".equalsIgnoreCase(approved)) { %>
@@ -511,6 +508,7 @@ if(approved == null || !"Approved".equalsIgnoreCase(approved)) { %>
     </form>
 <% } else { %>
     <span style="color:#15803d;font-weight:900;">Approved</span>
+<% } %>
 <% } %>
 </td>
 </tr>

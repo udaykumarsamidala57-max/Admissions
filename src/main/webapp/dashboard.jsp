@@ -1,425 +1,283 @@
 <%@ page import="java.util.*" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page session="true" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <%
 Integer total = (Integer) request.getAttribute("total");
 Integer day = (Integer) request.getAttribute("day");
 Integer res = (Integer) request.getAttribute("res");
 Integer semi = (Integer) request.getAttribute("semi");
 
-Map<String, int[]> classTypeWise = (Map<String, int[]>) request.getAttribute("classTypeWise");
+Map<String, int[]> dashboardMatrixRaw = (Map<String, int[]>) request.getAttribute("dashboardMatrix");
 
 if(total == null) total = 0;
 if(day == null) day = 0;
 if(res == null) res = 0;
 if(semi == null) semi = 0;
 %>
-<%
-    HttpSession sess = request.getSession(false);
-    if (sess == null || sess.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
 
-    String role = (String) sess.getAttribute("role");
-    String User = (String) sess.getAttribute("username");
+<%
+HttpSession sess = request.getSession(false);
+if (sess == null || sess.getAttribute("username") == null) {
+    response.sendRedirect("login.jsp");
+    return;
+}
 %>
+
+<%
+/* ================= NORMALIZE CLASS NAMES ================= */
+Map<String, int[]> dashboardMatrix = new HashMap<>();
+
+if(dashboardMatrixRaw != null){
+    for(Map.Entry<String,int[]> e : dashboardMatrixRaw.entrySet()){
+        String clean = e.getKey().toLowerCase().replaceAll("[^a-z0-9]", "");
+
+        String normalized;
+        if(clean.contains("nur")) normalized = "Nursery";
+        else if(clean.equals("lkg")) normalized = "LKG";
+        else if(clean.equals("ukg")) normalized = "UKG";
+        else if(clean.equals("classx") || clean.equals("10")) normalized = "Class 10";
+        else if(clean.equals("class9") || clean.equals("9")) normalized = "Class 9";
+        else if(clean.equals("class8") || clean.equals("8")) normalized = "Class 8";
+        else if(clean.equals("class7") || clean.equals("7")) normalized = "Class 7";
+        else if(clean.equals("class6") || clean.equals("6")) normalized = "Class 6";
+        else if(clean.equals("class5") || clean.equals("5")) normalized = "Class 5";
+        else if(clean.equals("class4") || clean.equals("4")) normalized = "Class 4";
+        else if(clean.equals("class3") || clean.equals("3")) normalized = "Class 3";
+        else if(clean.equals("class2") || clean.equals("2")) normalized = "Class 2";
+        else if(clean.equals("class1") || clean.equals("1")) normalized = "Class 1";
+        else continue;
+
+        dashboardMatrix.put(normalized, e.getValue());
+    }
+}
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
 <title>Admission Dashboard</title>
 
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
 body {
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #eef2ff, #f8fafc);
     padding: 20px;
 }
 
-/* ===== PAGE WRAPPER ===== */
-.container {
-    max-width: 1150px;
-    margin: auto;
-}
+.container { max-width: 1300px; margin: auto; }
 
-/* ===== HEADER ===== */
 h2 {
-    margin-bottom: 24px;
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 0.4px;
+    margin-bottom: 20px;
+    font-size: 34px;
+    font-weight: 800;
     color: #1e3a8a;
 }
+
+/* ===== PRINT BUTTON ===== */
+.print-btn {
+    float: right;
+    padding: 10px 18px;
+    background: #020617;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.print-btn i { margin-right: 6px; }
 
 /* ===== CARDS ===== */
 .cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 22px;
     margin-bottom: 35px;
 }
 
 .card {
-    padding: 24px;
-    border-radius: 18px;
-    color: white;
     position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-/* Card colors */
-.card.total { background: linear-gradient(135deg, #0f172a, #1e293b); }
-.card.day { background: linear-gradient(135deg, #2563eb, #60a5fa); }
-.card.res { background: linear-gradient(135deg, #16a34a, #4ade80); }
-.card.semi { background: linear-gradient(135deg, #ea580c, #fb923c); }
-
-.card h1 {
-    margin: 0;
-    font-size: 42px;
-    font-weight: 900;
-}
-
-.card p {
-    margin-top: 6px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-}
-
-/* icon circle */
-.card .icon {
-    position: absolute;
-    right: 18px;
-    top: 18px;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-/* ===== TABLE CONTAINER (SOFT GLASS CARD) ===== */
-.table-box {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(10px);
     padding: 26px;
-    border-radius: 20px;
-    box-shadow:
-        0 20px 45px rgba(0,0,0,0.10),
-        inset 0 1px 0 rgba(255,255,255,0.7);
-    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 22px;
+    color: white;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+    transition: 0.3s;
+    overflow: hidden;
 }
 
-/* ===== TITLE ===== */
-.table-box h3 {
-    margin: 0 0 20px;
-    font-size: 20px;
-    font-weight: 900;
-    color: #0f172a;
-    letter-spacing: 0.4px;
+.card i {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 60px;
+    opacity: 0.25;
 }
+
+.card h1 { margin: 0; font-size: 42px; font-weight: 800; }
+.card p { margin-top: 8px; font-size: 16px; font-weight: 600; }
+
+.card.total { background: linear-gradient(135deg, #020617, #1e293b); }
+.card.day   { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+.card.res   { background: linear-gradient(135deg, #15803d, #4ade80); }
+.card.semi  { background: linear-gradient(135deg, #c2410c, #fb923c); }
 
 /* ===== TABLE ===== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+.table-box {
     background: white;
+    padding: 26px;
+    border-radius: 22px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
 }
 
-/* ===== HEADER ===== */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
 thead th {
-    padding: 12px 12px;
-    background: linear-gradient(135deg, #fde047, #facc15); /* yellow */
-    color: #422006;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.6px;
-    font-weight: 900;
+    padding: 12px;
+    background: linear-gradient(135deg, #fde047, #facc15);
     border: 1px solid #f59e0b;
+    text-align:center;
 }
 
-/* ===== CELLS ===== */
 td {
-    padding: 10px 12px;
+    padding: 10px;
     text-align: center;
-    font-weight: 600;
-    color: #1f2933;
     border: 1px solid #e5e7eb;
+    font-weight: 600;
 }
 
-/* first column */
-td:first-child {
-    text-align: left;
-    font-weight: 800;
-}
+td:first-child { text-align: left; font-weight: 800; }
 
-/* ===== ZEBRA STRIPES ===== */
-tbody tr:nth-child(odd) td {
-    background: #fffef3;
-}
+.totalCol { background: #f1f5f9; font-weight: 900; }
 
-tbody tr:nth-child(even) td {
-    background: #fff7cc;
-}
-
-/* ===== ROW HOVER ===== */
-tbody tr:hover td {
-    background: #fde68a;
-}
-
-/* ===== FOOTER ===== */
-tfoot td {
-    background: #facc15;
-    font-weight: 900;
-    color: #422006;
-    border: 1px solid #f59e0b;
-}
-
-/* ===== COLORED NUMBERS (BADGE STYLE) ===== */
-.dayTxt {
-    color: #1d4ed8;
-    background: #e0e7ff;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 900;
-}
-
-.resTxt {
-    color: #15803d;
-    background: #dcfce7;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 900;
-}
-
-.semiTxt {
-    color: #c2410c;
-    background: #ffedd5;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 900;
-}
-
-.totalTxt {
-    color: #020617;
-    background: #e5e7eb;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 900;
-}
-
-/* ===== FOOTER TOTAL ROW ===== */
-tfoot tr {
-    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-    box-shadow: 0 8px 22px rgba(0,0,0,0.1);
-}
-
-tfoot td {
-    padding: 16px 14px;
-    font-weight: 900;
-    color: #1e3a8a;
-    border-radius: 12px;
-}
-
-
-/* ===== COLORED NUMBERS ===== */
-.dayTxt {
-    color: #1d4ed8;
-    font-weight: 900;
-}
-.resTxt {
-    color: #15803d;
-    font-weight: 900;
-}
-.semiTxt {
-    color: #c2410c;
-    font-weight: 900;
-}
-.totalTxt {
-    color: #020617;
-    font-weight: 900;
-}
-
-/* ===== TOTAL ROW ===== */
-tfoot td {
-    padding: 14px 12px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-    color: #1e3a8a;
-    border-top: 2px solid #c7d2fe;
-}
-
-/* round bottom corners */
-tfoot td:first-child { border-bottom-left-radius: 16px; }
-tfoot td:last-child { border-bottom-right-radius: 16px; }
-
-/* ===== LOAD ANIMATION ===== */
-.cards, .table-box {
-    animation: fadeUp 0.6s ease;
-}
-/* ===== TOP HEADER BAR ===== */
-.topbar {
-    height: 64px;
-    background: linear-gradient(90deg, #312e81, #5b21b6, #6d28d9);
+.grandRow td {
+    background: #020617;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    border-radius: 14px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.25);
-}
-
-.topbar .title {
-    font-size: 20px;
     font-weight: 900;
-    letter-spacing: 0.4px;
 }
 
-/* ===== RIGHT BUTTONS ===== */
-.topbar .actions {
-    display: flex;
-    gap: 12px;
-}
-
-.topbar .btn {
-    border: none;
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: 0.2s;
-}
-
-.topbar .btn:hover {
-    transform: translateY(-1px);
-}
-
-/* Button colors */
-.btn-dashboard { background: #2563eb; }
-.btn-export { background: #22c55e; }
-.btn-logout { background: #ef4444; }
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ===== PRINT MODE ===== */
+@media print {
+    .print-btn, .no-print { display: none !important; }
+    body { background: white; }
 }
 </style>
+
+<script>
+function printDashboard() {
+    window.print();
+}
+</script>
+
 </head>
 
 <body>
-<div class="topbar">
-    <div class="title">Admission Enquiry Dashboard</div>
 
-    <div class="actions">
-        <button class="btn btn-dashboard" onclick="location.href='admission'">Enquiries</button>
-        <button class="btn btn-export" onclick="location.href='exportExcel'">Export</button>
-        <button class="btn btn-logout" onclick="location.href='Logout.jsp'">Logout</button>
-    </div>
+<div class="no-print">
+    <jsp:include page="common_header.jsp" />
 </div>
+
 <div class="container">
 
-<h2>Admission Dashboard</h2>
+<button class="print-btn" onclick="printDashboard()">
+    <i class="fa-solid fa-print"></i> Print Dashboard
+</button>
+<h2 align="center">Sandur Residential School</h2>
+<h2 align="center"><i class="fa-solid fa-chart-column"></i> Admission Dashboard(2026-27)</h2>
 
-<!-- ===== TOP CARDS ===== -->
 <div class="cards">
-
     <div class="card total">
-        <div class="icon">T</div>
+        <i class="fa-solid fa-users"></i>
         <h1><%= total %></h1>
         <p>Total Enquiries</p>
     </div>
 
     <div class="card day">
-        <div class="icon">D</div>
+        <i class="fa-solid fa-school"></i>
         <h1><%= day %></h1>
         <p>Day Scholars</p>
     </div>
 
     <div class="card res">
-        <div class="icon">R</div>
+        <i class="fa-solid fa-house-chimney-user"></i>
         <h1><%= res %></h1>
         <p>Residential</p>
     </div>
 
     <div class="card semi">
-        <div class="icon">S</div>
+        <i class="fa-solid fa-bus"></i>
         <h1><%= semi %></h1>
         <p>Semi Residential</p>
     </div>
-
 </div>
 
-<!-- ===== TABLE ===== -->
 <div class="table-box">
-<h3>Class Wise Admission Summary</h3>
 
 <table>
 <thead>
 <tr>
-    <th>Class</th>
-    <th>Day</th>
-    <th>Residential</th>
-    <th>Semi</th>
-    <th>Total</th>
+    <th rowspan="2">Class</th>
+    <th colspan="4">Present Strength</th>
+    <th colspan="4">Enquiries</th>
+</tr>
+<tr>
+    <th>Day</th><th>Res</th><th>Semi</th><th>Total</th>
+    <th>Day</th><th>Res</th><th>Semi</th><th>Total</th>
 </tr>
 </thead>
 
 <tbody>
 <%
-int gDay = 0, gRes = 0, gSemi = 0, gTotal = 0;
+String[] classOrder = {"Nursery","LKG","UKG","Class 1","Class 2","Class 3","Class 4","Class 5","Class 6","Class 7","Class 8","Class 9","Class 10"};
 
-if(classTypeWise != null && !classTypeWise.isEmpty()){
-    for(Map.Entry<String, int[]> e : classTypeWise.entrySet()){
-        int[] v = e.getValue();
-        gDay += v[0];
-        gRes += v[1];
-        gSemi += v[2];
-        gTotal += v[3];
+int gPSD=0, gPSR=0, gPSS=0, gPS=0;
+int gED=0, gER=0, gES=0, gE=0;
+
+for(String cls : classOrder){
+    int[] v = (dashboardMatrix!=null && dashboardMatrix.get(cls)!=null) ? dashboardMatrix.get(cls) : new int[]{0,0,0,0,0,0};
+
+    int psTotal = v[0]+v[1]+v[2];
+    int enqTotal = v[3]+v[4]+v[5];
+
+    gPSD+=v[0]; gPSR+=v[1]; gPSS+=v[2]; gPS+=psTotal;
+    gED+=v[3]; gER+=v[4]; gES+=v[5]; gE+=enqTotal;
 %>
 <tr>
-    <td><%= e.getKey() %></td>
-    <td class="dayTxt"><%= v[0] %></td>
-    <td class="resTxt"><%= v[1] %></td>
-    <td class="semiTxt"><%= v[2] %></td>
-    <td class="totalTxt"><%= v[3] %></td>
-</tr>
-<%
-    }
-} else {
-%>
-<tr>
-    <td colspan="5">No Data Available</td>
+<td><%= cls %></td>
+<td><%= v[0] %></td>
+<td><%= v[1] %></td>
+<td><%= v[2] %></td>
+<td class="totalCol"><%= psTotal %></td>
+<td><%= v[3] %></td>
+<td><%= v[4] %></td>
+<td><%= v[5] %></td>
+<td class="totalCol"><%= enqTotal %></td>
 </tr>
 <% } %>
-</tbody>
 
-<tfoot>
-<tr>
-    <td>Grand Total</td>
-    <td><%= gDay %></td>
-    <td><%= gRes %></td>
-    <td><%= gSemi %></td>
-    <td><%= gTotal %></td>
+<tr class="grandRow">
+<td>GRAND TOTAL</td>
+<td><%= gPSD %></td>
+<td><%= gPSR %></td>
+<td><%= gPSS %></td>
+<td><%= gPS %></td>
+<td><%= gED %></td>
+<td><%= gER %></td>
+<td><%= gES %></td>
+<td><%= gE %></td>
 </tr>
-</tfoot>
 
+</tbody>
 </table>
-</div>
 
 </div>
+</div>
+
 </body>
 </html>

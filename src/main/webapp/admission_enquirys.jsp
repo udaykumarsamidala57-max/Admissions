@@ -1,6 +1,8 @@
 <%@ page import="javax.sql.rowset.CachedRowSet" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page session="true" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <!DOCTYPE html>
 
 <%
@@ -406,15 +408,11 @@ window.onload = function(){
 <body>
 <div class="app">
 
-<div class="toolbar">
-    <h2>Admission Enquiry Register</h2>
-    <div>
-       <button class="btn blue" onclick="location.href='dashboard'">Dashboard</button>
+<!-- ===== HEADER ===== -->
 
-        <button class="btn" onclick="downloadExcel()">Export</button>
-        <button class="btn red" onclick="location.href='Logout.jsp'">Logout</button>
-    </div>
-</div>
+   
+    <jsp:include page="common_header.jsp" />
+
 
 <div class="filters">
     <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
@@ -429,6 +427,7 @@ window.onload = function(){
         <option value="">All Types</option>
         <option>Dayscholar</option><option>Residential</option>
     </select>
+     <button class="btn blue" onclick="downloadExcel()"> Export Excel</button>
 </div>
 
 <div class="table-wrap">
