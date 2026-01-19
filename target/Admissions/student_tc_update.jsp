@@ -5,6 +5,7 @@
 <head>
 <title>Student TC Status Management</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <style>
 *{ box-sizing:border-box; font-family:Inter,Segoe UI,Arial; }
@@ -40,6 +41,7 @@ body{
     background: linear-gradient(135deg,#2563eb,#1d4ed8);
 }
 .btn.red{ background:linear-gradient(135deg,#ef4444,#dc2626); }
+.btn.green{ background:linear-gradient(135deg,#22c55e,#16a34a); }
 
 /* ===== FILTER BAR ===== */
 .filters{
@@ -165,17 +167,45 @@ function applyFilters(){
         r.style.display = ok ? "" : "none";
     });
 }
+
+/* ===== EXCEL DOWNLOAD ===== */
+function downloadExcel(){
+    let table = document.getElementById("studentTable");
+    let rows = table.querySelectorAll("tr");
+
+    let csv = [];
+
+    rows.forEach(row=>{
+        if(row.style.display === "none") return;
+
+        let cols = row.querySelectorAll("th, td");
+        let rowData = [];
+
+        cols.forEach(col=>{
+            let text = col.innerText.replace(/"/g, '""');
+            rowData.push('"' + text + '"');
+        });
+
+        csv.push(rowData.join(","));
+    });
+
+    let csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+    let downloadLink = document.createElement("a");
+
+    downloadLink.download = "TC_Student_List.csv";
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
 </script>
 
 </head>
 <body>
 
-
-
-<!-- ===== HEADER ===== -->
-
-    <jsp:include page="common_header.jsp" />
-
+<jsp:include page="common_header.jsp" />
 
 <!-- ===== FILTER BAR ===== -->
 <div class="filters">
@@ -202,11 +232,13 @@ function applyFilters(){
             }
         %>
     </select>
+
+    <!-- ✅ EXPORT BUTTON -->
+    <button class="btn green" onclick="downloadExcel()">⬇ Export Excel</button>
 </div>
 
 <!-- ===== TABLE ===== -->
 <div class="table-wrap">
-
 <table id="studentTable">
 <thead>
 <tr>
@@ -246,17 +278,13 @@ function applyFilters(){
     <td>
 
     <% if(showDropdown) { %>
-
         <select onchange="updateTCStatus(<%=rs.getInt("sno")%>, this.value)">
             <option value="Active" <%= (status==null || status.trim().equals("") || "Active".equalsIgnoreCase(status))?"selected":"" %>>Active</option>
             <option value="TC Applied">TC Applied</option>
             <option value="Passed Out">Passed Out</option>
         </select>
-
     <% } else { %>
-
         <span class="badge-tc"><%= status %></span>
-
     <% } %>
 
     </td>
@@ -274,8 +302,6 @@ function applyFilters(){
 
 </tbody>
 </table>
-
-</div>
 </div>
 
 </body>

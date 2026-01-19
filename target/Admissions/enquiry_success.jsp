@@ -110,7 +110,7 @@ p {
     <p>Your admission enquiry has been saved successfully.</p>
     <p>Our team will contact you soon.</p>
 
-    <button class="btn" onclick="goBack()">Submit Another Enquiry</button>
+   
 </div>
 
 <script>

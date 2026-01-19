@@ -1,6 +1,6 @@
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page session="true" %>
-
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     HttpSession sess = request.getSession(false);
     if (sess == null || sess.getAttribute("username") == null) {
@@ -91,16 +91,16 @@
 <!-- ================= HEADER ================= -->
 <div class="ams-header">
     <div class="toolbar">
-        <h2>Admissions Management System</h2>
+        <h2 style="color:white">🎓 Admissions Management System</h2>
 
         <div class="menu-right">
-            <button class="btn gray" onclick="location.href='dashboard'">Dashboard</button>
-            <button class="btn" onclick="location.href='admission'">Enquiries</button>
-            <button class="btn blue" onclick="location.href='student_tc_update.jsp'">TC Update</button>
+            <button class="btn gray" onclick="location.href='dashboard'">📊 Dashboard</button>
 
-           
+<button class="btn" onclick="location.href='admission'">📝 Enquiries</button>
 
-            <button class="btn red" onclick="location.href='Logout.jsp'">Logout</button>
+<button class="btn blue" onclick="location.href='student_tc_update.jsp'">📄 TC Update</button>
+
+<button class="btn red" onclick="location.href='Logout.jsp'">🚪 Logout</button>
         </div>
     </div>
 </div>
