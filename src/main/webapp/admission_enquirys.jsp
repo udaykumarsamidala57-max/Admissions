@@ -34,7 +34,48 @@ body{
         radial-gradient(circle at 90% 20%, #fef3c7 0%, transparent 40%),
         linear-gradient(135deg,#eef2ff,#f8fafc);
 }
+/* ===== SUMMARY CARDS ===== */
+.summary-bar{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    width:100%;
+}
 
+.summary-card{
+    flex:1;
+    min-width:160px;
+    padding:12px 16px;
+    border-radius:14px;
+    color:white;
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    transition:.2s;
+}
+
+.summary-card:hover{
+    transform: translateY(-3px) scale(1.02);
+}
+
+.summary-title{
+    font-size:13px;
+    opacity:0.9;
+    font-weight:600;
+}
+
+.summary-value{
+    font-size:26px;
+    font-weight:800;
+    margin-top:4px;
+}
+
+/* Colors */
+.sum-total{ background: linear-gradient(135deg,#2563eb,#1d4ed8); }
+.sum-visible{ background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+.sum-day{ background: linear-gradient(135deg,#22c55e,#16a34a); }
 .app{ display:flex; flex-direction:column; height:100vh; }
 
 /* ===== HEADER ===== */
@@ -230,11 +271,19 @@ function calculateAgeDetailed(dob, targetId){
 
 /* ================= FILTERS ================= */
 function applyFilters(){
+
     let c = document.getElementById("filterClass").value.toLowerCase();
     let t = document.getElementById("filterType").value.toLowerCase();
     let s = document.getElementById("filterSearch").value.toLowerCase();
 
+    let total = 0;
+    let visible = 0;
+    let day = 0;
+    let res = 0;
+
     document.querySelectorAll(".data-row").forEach(r=>{
+        total++;
+
         let td = r.querySelectorAll("td");
         let cls = normalize(td[5].innerText);
         let typ = normalize(td[6].innerText);
@@ -246,7 +295,18 @@ function applyFilters(){
         if(s && !txt.includes(s)) show=false;
 
         r.style.display = show ? "" : "none";
+
+        if(show){
+            visible++;
+            if(typ.includes("day")) day++;
+            else if(typ.includes("res")) res++;
+        }
     });
+
+    document.getElementById("countTotal").innerText = total;
+    document.getElementById("countVisible").innerText = visible;
+    document.getElementById("countDay").innerText = day;
+    document.getElementById("countRes").innerText = res;
 }
 
 /* ================= EXPORT ================= */
@@ -385,6 +445,7 @@ function buildDashboard(){
     </tr>`;
 }
 
+
 /* ================= EDIT MODAL ================= */
 function openEditModal(id){ 
     document.getElementById("editModal"+id).style.display="flex"; 
@@ -395,11 +456,14 @@ function closeEditModal(id){
 
 /* ================= AUTO AGE CALC ================= */
 window.onload = function(){
+
     document.querySelectorAll(".age-cell").forEach(td=>{
         let dob = td.getAttribute("data-dob");
         let id = td.id;
         calculateAgeDetailed(dob, id);
     });
+
+    applyFilters(); // ✅ THIS LOADS COUNTS
 }
 </script>
 
@@ -415,7 +479,11 @@ window.onload = function(){
 
 
 <div class="filters">
-    <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
+    <b>Total:</b> <span id="countTotal">0</span>
+    <b>Visible:</b> <span id="countVisible">0</span>
+    <b>Dayscholar:</b> <span id="countDay">0</span>
+    <b>Residential:</b> <span id="countRes">0</span>
+   <input type="text" id="filterSearch" placeholder="Search..." onkeyup="applyFilters()">
     <select id="filterClass" onchange="applyFilters()">
         <option value="">All Classes</option>
         <option>Nursery</option>
@@ -424,11 +492,13 @@ window.onload = function(){
         <option>Class 5</option><option>Class 6</option><option>Class 7</option>
         <option>Class 8</option><option>Class 9</option>
     </select>
+
     <select id="filterType" onchange="applyFilters()">
         <option value="">All Types</option>
         <option>Dayscholar</option><option>Residential</option>
     </select>
-     <button class="btn blue" onclick="downloadExcel()"> Export Excel</button>
+
+    <button class="btn blue" onclick="downloadExcel()"> Export Excel</button>
 </div>
 
 <div class="table-wrap">
