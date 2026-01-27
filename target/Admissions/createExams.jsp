@@ -1,6 +1,15 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="bean.DBUtil" %>
+<%
+    HttpSession sess = request.getSession(false);
+    if (sess == null || sess.getAttribute("username") == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
 
+    String role = (String) sess.getAttribute("role");
+    String User = (String) sess.getAttribute("username");
+%>
 <%
     Connection con = null;
     PreparedStatement ps = null;
