@@ -1,7 +1,16 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="bean.DBUtil" %>
+<%
+    HttpSession sess = request.getSession(false);
+    if (sess == null || sess.getAttribute("username") == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
 
+    String role = (String) sess.getAttribute("role");
+    String User = (String) sess.getAttribute("username");
+%>
 <%
 String selectedClass = request.getParameter("class_of_admission");
 String selectedDate  = request.getParameter("exam_date");

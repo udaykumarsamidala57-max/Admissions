@@ -1,7 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="bean.DBUtil" %>
+<%
+    HttpSession sess = request.getSession(false);
+    if (sess == null || sess.getAttribute("username") == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
 
+    String role = (String) sess.getAttribute("role");
+    String User = (String) sess.getAttribute("username");
+%>
 <!DOCTYPE html>
 <html>
 <head>
