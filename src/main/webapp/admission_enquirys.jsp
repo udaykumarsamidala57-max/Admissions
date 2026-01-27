@@ -507,7 +507,7 @@ window.onload = function(){
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
 <th>F Mobile</th><th>Mother</th><th>M Occ</th><th>M Org</th>
-<th>M Mobile</th><th>Place</th><th>Segment</th><th>Action</th><th>Apporval</th>
+<th>M Mobile</th><th>Place</th><th>Segment</th><th>Exam Date</th><th>Action</th><th>Apporval</th>
 </tr>
 
 <%
@@ -551,6 +551,7 @@ while(rs!=null && rs.next()){
 
 <td><%=rs.getString("place_from")%></td>
 <td><%=rs.getString("segment")%></td>
+<td><%=rs.getString("exam_date")%></td>
 
 <td>
 <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
@@ -630,6 +631,7 @@ while(rs!=null && rs.next()){
 <div><label>Mother Organization</label><input name="mother_organization" value="<%=rs.getString("mother_organization")%>"></div>
 <div><label>Mother Mobile</label><input name="mother_mobile_no" value="<%=rs.getString("mother_mobile_no")%>"></div>
 <div><label>Place From</label><input name="place_from" value="<%=rs.getString("place_from")%>"></div>
+<div><label>Exam Date</label><input type="date" name="exam_date" id="exam_date" value="<%=rs.getString("exam_date")%>"></div>
 
 </div>
 

@@ -45,14 +45,15 @@
 /* ===== RIGHT MENU ===== */
 .ams-header .menu-right{
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 /* ===== BUTTONS ===== */
 .ams-header .btn{
     border: none;
-    padding: 9px 16px;
+    padding: 10px 18px;
     border-radius: 12px;
     cursor: pointer;
     font-weight: 700;
@@ -61,10 +62,14 @@
     background: linear-gradient(135deg,#22c55e,#16a34a);
     box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     transition: all .25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .ams-header .btn:hover{
-    transform: translateY(-2px) scale(1.03);
+    transform: translateY(-2px) scale(1.04);
     box-shadow: 0 10px 20px rgba(0,0,0,0.35);
 }
 
@@ -83,7 +88,6 @@
     .ams-header .menu-right{
         width: 100%;
         justify-content: flex-end;
-        flex-wrap: wrap;
     }
 }
 </style>
@@ -94,13 +98,31 @@
         <h2 style="color:white">🎓 Admissions Management System</h2>
 
         <div class="menu-right">
-            <button class="btn gray" onclick="location.href='dashboard'">📊 Dashboard</button>
 
-<button class="btn" onclick="location.href='admission'">📝 Enquiries</button>
+            <button class="btn gray" onclick="location.href='dashboard'">
+                📊 <span>Dashboard</span>
+            </button>
 
-<button class="btn blue" onclick="location.href='student_tc_update.jsp'">📄 TC Update</button>
+            <button class="btn" onclick="location.href='admission'">
+                📝 <span>Enquiries</span>
+            </button>
 
-<button class="btn red" onclick="location.href='Logout.jsp'">🚪 Logout</button>
+            <button class="btn" onclick="location.href='enter_marks.jsp'">
+                🧪 <span>Entrance Test</span>
+            </button>
+
+            <button class="btn" onclick="location.href='marks_report.jsp'">
+                📈 <span>Test Report</span>
+            </button>
+
+            <button class="btn blue" onclick="location.href='student_tc_update.jsp'">
+                📄 <span>TC Update</span>
+            </button>
+
+            <button class="btn red" onclick="location.href='Logout.jsp'">
+                🚪 <span>Logout</span>
+            </button>
+
         </div>
     </div>
 </div>

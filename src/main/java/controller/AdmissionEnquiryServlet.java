@@ -136,29 +136,34 @@ public class AdmissionEnquiryServlet extends HttpServlet {
                 ps.executeUpdate();
 
             } else {
-                // ================= UPDATE =================
-                PreparedStatement ps = con.prepareStatement(
-                        "UPDATE admission_enquiry SET " +
-                        "student_name=?, gender=?, date_of_birth=?, " +
-                        "class_of_admission=?, admission_type=?, father_name=?, " +
-                        "father_mobile_no=?, mother_name=?, mother_mobile_no=?, " +
-                        "place_from=?, segment=? WHERE enquiry_id=?"
-                );
+            	PreparedStatement ps = con.prepareStatement(
+            		    "UPDATE admission_enquiry SET " +
+            		    "student_name=?, gender=?, date_of_birth=?, " +
+            		    "class_of_admission=?, admission_type=?, father_name=?, " +
+            		    "father_mobile_no=?, mother_name=?, mother_mobile_no=?, " +
+            		    "place_from=?, segment=?, exam_date=? WHERE enquiry_id=?"
+            		);
 
-                ps.setString(1, req.getParameter("student_name"));
-                ps.setString(2, req.getParameter("gender"));
-                ps.setString(3, req.getParameter("date_of_birth"));
-                ps.setString(4, req.getParameter("class_of_admission"));
-                ps.setString(5, req.getParameter("admission_type"));
-                ps.setString(6, req.getParameter("father_name"));
-                ps.setString(7, req.getParameter("father_mobile_no"));
-                ps.setString(8, req.getParameter("mother_name"));
-                ps.setString(9, req.getParameter("mother_mobile_no"));
-                ps.setString(10, req.getParameter("place_from"));
-                ps.setString(11, req.getParameter("segment"));
-                ps.setInt(12, Integer.parseInt(id));
+            		ps.setString(1, req.getParameter("student_name"));
+            		ps.setString(2, req.getParameter("gender"));
+            		ps.setString(3, req.getParameter("date_of_birth"));
+            		ps.setString(4, req.getParameter("class_of_admission"));
+            		ps.setString(5, req.getParameter("admission_type"));
+            		ps.setString(6, req.getParameter("father_name"));
+            		ps.setString(7, req.getParameter("father_mobile_no"));
+            		ps.setString(8, req.getParameter("mother_name"));
+            		ps.setString(9, req.getParameter("mother_mobile_no"));
+            		ps.setString(10, req.getParameter("place_from"));
+            		ps.setString(11, req.getParameter("segment"));
 
-                ps.executeUpdate();
+            		// ✅ DATE
+            		String examDateStr = req.getParameter("exam_date");
+            		ps.setDate(12, java.sql.Date.valueOf(examDateStr));
+
+            		// ✅ WHERE ID
+            		ps.setInt(13, Integer.parseInt(req.getParameter("enquiry_id")));
+
+            		ps.executeUpdate();
             }
 
         } catch (Exception e) {
