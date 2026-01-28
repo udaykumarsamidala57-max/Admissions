@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -60,9 +61,9 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
                 return;
             }
 
-            // ================= LOAD STUDENTS (DATE FILTERED) =================
+            // ================= LOAD STUDENTS =================
             PreparedStatement psStudents = con.prepareStatement(
-                "SELECT ae.enquiry_id, ae.student_name " +
+                "SELECT ae.enquiry_id, ae.student_name, ae.entrance_remarks " +
                 "FROM admission_enquiry ae " +
                 "JOIN classes c ON ae.class_of_admission = c.class_name " +
                 "WHERE c.class_id=? AND ae.approved='Approved' AND ae.exam_date=?"
@@ -72,14 +73,33 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
 
             ResultSet rsStudents = psStudents.executeQuery();
 
+            // ================= LOAD ALL MARKS AT ONCE =================
+            PreparedStatement psAllMarks = con.prepareStatement(
+                "SELECT enquiry_id, exam_id, marks_obtained FROM student_exam_marks WHERE exam_date=?"
+            );
+            psAllMarks.setString(1, examDate);
+
+            ResultSet rsAllMarks = psAllMarks.executeQuery();
+
+            // Map<enquiryId_examId, marks>
+            HashMap<String, Integer> marksMap = new HashMap<>();
+
+            while (rsAllMarks.next()) {
+                String key = rsAllMarks.getInt("enquiry_id") + "_" + rsAllMarks.getInt("exam_id");
+                marksMap.put(key, rsAllMarks.getInt("marks_obtained"));
+            }
+
+            rsAllMarks.close();
+            psAllMarks.close();
+
             boolean found = false;
 
             // ================= TABLE HEADER =================
             out.println("<table class='marksTable'>");
-            out.println("<tr><th>Enquiry</th><th>Name</th>");
+            out.println("<tr><th>Enquiry</th><th>Name</th><th>Entrance Remarks</th>");
 
             for (int i = 0; i < examNames.size(); i++) {
-                out.println("<th>" + examNames.get(i) + "<br>(" + maxMarks.get(i) + ")</th>");
+                out.println("<th>" + escapeHtml(examNames.get(i)) + "<br>(" + maxMarks.get(i) + ")</th>");
             }
             out.println("<th>Total</th></tr>");
 
@@ -88,40 +108,28 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
                 found = true;
 
                 int enquiryId = rsStudents.getInt("enquiry_id");
-                String studentName = rsStudents.getString("student_name");
+                String studentName = escapeHtml(rsStudents.getString("student_name"));
+                String remarks = escapeHtml(rsStudents.getString("entrance_remarks"));
 
                 out.println("<tr>");
                 out.println("<td>" + enquiryId + "</td>");
                 out.println("<td>" + studentName + "</td>");
+                out.println("<td><input class='remarksBox' name='remarks_" + enquiryId + "' value='" + (remarks == null ? "" : remarks) + "'></td>");
 
                 int total = 0;
 
                 for (int i = 0; i < examIds.size(); i++) {
+                    int examId = examIds.get(i);
 
-                    PreparedStatement psMark = con.prepareStatement(
-                        "SELECT marks_obtained FROM student_exam_marks " +
-                        "WHERE enquiry_id=? AND exam_id=? AND exam_date=?"
-                    );
-                    psMark.setInt(1, enquiryId);
-                    psMark.setInt(2, examIds.get(i));
-                    psMark.setString(3, examDate);
-
-                    ResultSet rsMark = psMark.executeQuery();
-
-                    int marks = 0;
-                    if (rsMark.next()) {
-                        marks = rsMark.getInt("marks_obtained");
-                    }
-
-                    rsMark.close();
-                    psMark.close();
+                    Integer marksObj = marksMap.get(enquiryId + "_" + examId);
+                    int marks = (marksObj == null) ? 0 : marksObj;
 
                     total += marks;
 
                     out.println("<td>");
                     out.println("<input type='number' class='markInput' min='0' max='" + maxMarks.get(i) + "' " +
-                        "name='marks_" + enquiryId + "_" + examIds.get(i) + "' " +
-                        "value='" + marks + "' oninput='calculateRowTotal(this)'>");
+                        "name='marks_" + enquiryId + "_" + examId + "' " +
+                        "value='" + marks + "'>");
                     out.println("</td>");
                 }
 
@@ -135,7 +143,7 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
             psStudents.close();
 
             if (found) {
-                out.println("<br><button type='submit' class='saveBtn'>💾 Save Marks</button>");
+                out.println("<br><button type='submit'>💾 Save Marks</button>");
             } else {
                 out.println("<p style='color:red;font-weight:bold;'>No students found for selected exam date.</p>");
             }
@@ -144,11 +152,17 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
             e.printStackTrace();
             out.println("<p style='color:red;'>Error loading data.</p>");
         } finally {
-            try {
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            try { if (con != null) con.close(); } catch (Exception e) {}
         }
+    }
+
+    // ================= HTML ESCAPE =================
+    private String escapeHtml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;");
     }
 }

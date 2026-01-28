@@ -3,8 +3,7 @@ package controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Enumeration;
+import java.util.*;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,31 +22,28 @@ public class SaveMarksServlet extends HttpServlet {
         String examDate = request.getParameter("exam_date_hidden");
 
         Connection con = null;
-        PreparedStatement psCheck = null;
-        PreparedStatement psInsert = null;
-        PreparedStatement psUpdate = null;
+        PreparedStatement psUpsertMarks = null;
+        PreparedStatement psUpdateStudent = null;
 
         try {
             con = DBUtil.getConnection();
             con.setAutoCommit(false);
 
-            // Check existing
-            psCheck = con.prepareStatement(
-                "SELECT marks_obtained FROM student_exam_marks WHERE enquiry_id=? AND exam_id=?"
+            /* ================= UPSERT MARKS ================= */
+            psUpsertMarks = con.prepareStatement(
+                "INSERT INTO student_exam_marks(enquiry_id, exam_id, exam_date, marks_obtained) " +
+                "VALUES(?,?,?,?) " +
+                "ON DUPLICATE KEY UPDATE marks_obtained=VALUES(marks_obtained)"
             );
 
-            // Insert new
-            psInsert = con.prepareStatement(
-                "INSERT INTO student_exam_marks(enquiry_id, exam_id, marks_obtained, exam_date) VALUES(?,?,?,?)"
+            /* ================= UPDATE STUDENT TABLE ================= */
+            psUpdateStudent = con.prepareStatement(
+                "UPDATE admission_enquiry SET exam_date=?, entrance_remarks=? WHERE enquiry_id=?"
             );
 
-            // Update existing
-            psUpdate = con.prepareStatement(
-                "UPDATE student_exam_marks SET marks_obtained=?, exam_date=? WHERE enquiry_id=? AND exam_id=?"
-            );
+            Set<Integer> studentIds = new HashSet<>();
 
             Enumeration<String> params = request.getParameterNames();
-
             while (params.hasMoreElements()) {
                 String param = params.nextElement();
 
@@ -56,39 +52,39 @@ public class SaveMarksServlet extends HttpServlet {
 
                     int enquiryId = Integer.parseInt(parts[1]);
                     int examId = Integer.parseInt(parts[2]);
-                    int newMarks = Integer.parseInt(request.getParameter(param));
 
-                    // Check existing marks
-                    psCheck.setInt(1, enquiryId);
-                    psCheck.setInt(2, examId);
-                    ResultSet rs = psCheck.executeQuery();
+                    int marks = 0;
+                    try {
+                        marks = Integer.parseInt(request.getParameter(param));
+                    } catch (Exception e) {}
 
-                    if (rs.next()) {
-                        int oldMarks = rs.getInt("marks_obtained");
+                    psUpsertMarks.setInt(1, enquiryId);
+                    psUpsertMarks.setInt(2, examId);
+                    psUpsertMarks.setString(3, examDate);
+                    psUpsertMarks.setInt(4, marks);
+                    psUpsertMarks.addBatch();
 
-                        // Update ONLY if changed
-                        if (oldMarks != newMarks) {
-                            psUpdate.setInt(1, newMarks);
-                            psUpdate.setString(2, examDate);
-                            psUpdate.setInt(3, enquiryId);
-                            psUpdate.setInt(4, examId);
-                            psUpdate.addBatch();
-                        }
-                    } else {
-                        // Insert new
-                        psInsert.setInt(1, enquiryId);
-                        psInsert.setInt(2, examId);
-                        psInsert.setInt(3, newMarks);
-                        psInsert.setString(4, examDate);
-                        psInsert.addBatch();
-                    }
+                    studentIds.add(enquiryId);
                 }
             }
 
-            psInsert.executeBatch();
-            psUpdate.executeBatch();
-            con.commit();
+            psUpsertMarks.executeBatch();
 
+            /* ================= SAVE DATE + REMARKS ================= */
+            for (int enquiryId : studentIds) {
+
+                String remarks = request.getParameter("remarks_" + enquiryId);
+                if (remarks == null) remarks = "";
+
+                psUpdateStudent.setString(1, examDate);
+                psUpdateStudent.setString(2, remarks);
+                psUpdateStudent.setInt(3, enquiryId);
+                psUpdateStudent.addBatch();
+            }
+
+            psUpdateStudent.executeBatch();
+
+            con.commit();
             response.sendRedirect("enter_marks.jsp?msg=success");
 
         } catch (Exception e) {
@@ -97,9 +93,8 @@ public class SaveMarksServlet extends HttpServlet {
             response.sendRedirect("enter_marks.jsp?msg=error");
 
         } finally {
-            try { if (psCheck != null) psCheck.close(); } catch (Exception e) {}
-            try { if (psInsert != null) psInsert.close(); } catch (Exception e) {}
-            try { if (psUpdate != null) psUpdate.close(); } catch (Exception e) {}
+            try { if (psUpsertMarks != null) psUpsertMarks.close(); } catch (Exception e) {}
+            try { if (psUpdateStudent != null) psUpdateStudent.close(); } catch (Exception e) {}
             try { if (con != null) con.close(); } catch (Exception e) {}
         }
     }

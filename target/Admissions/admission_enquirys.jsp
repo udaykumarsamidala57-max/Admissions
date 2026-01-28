@@ -246,12 +246,8 @@ tr:hover{ background:#eef2ff; }
 }
 </style>
 <script>
-
-
 function calculateAges() {
     let cells = document.querySelectorAll(".age-cell");
-
-    // 🎯 Fixed cutoff date: 31 May 2026 (force midnight)
     let asOnDate = new Date(2026, 4, 31);
     asOnDate.setHours(0,0,0,0);
 
@@ -260,12 +256,11 @@ function calculateAges() {
         if (!dob) return;
 
         let birth = new Date(dob);
-        birth.setHours(0,0,0,0); // 🔥 Fix timezone shift
+        birth.setHours(0,0,0,0);
 
         let y = 0, m = 0;
         let temp = new Date(birth);
 
-        // Count years
         while (true) {
             let next = new Date(temp);
             next.setFullYear(next.getFullYear() + 1);
@@ -275,7 +270,6 @@ function calculateAges() {
             } else break;
         }
 
-        // Count months
         while (true) {
             let next = new Date(temp);
             next.setMonth(next.getMonth() + 1);
@@ -285,10 +279,7 @@ function calculateAges() {
             } else break;
         }
 
-        // Remaining days (timezone safe)
-        let diffMs = asOnDate.getTime() - temp.getTime();
-        let d = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
+        let d = Math.floor((asOnDate - temp) / (1000 * 60 * 60 * 24));
         cell.innerText = y + "Y " + m + "M " + d + "D";
     });
 }
@@ -300,10 +291,7 @@ function applyFilters(){
 
     let rows = document.querySelectorAll(".data-row");
 
-    let total = 0;
-    let visible = 0;
-    let day = 0;
-    let res = 0;
+    let total = 0, visible = 0, day = 0, res = 0;
 
     rows.forEach(row=>{
         total++;
@@ -321,7 +309,6 @@ function applyFilters(){
         if(show){
             row.style.display="";
             visible++;
-
             if(typeCol.includes("day")) day++;
             else res++;
         } else {
@@ -350,21 +337,14 @@ function downloadExcel() {
         csv.push(rowData.join(','));
     });
 
-    const csvString = csv.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'enquiryTable.csv');
-    link.style.visibility = 'hidden';
+    link.href = URL.createObjectURL(blob);
+    link.download = 'enquiryTable.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
-
-
-
 
 function openEditModal(id){
     document.getElementById("editModal"+id).style.display="flex";
@@ -373,14 +353,6 @@ function openEditModal(id){
 function closeEditModal(id){
     document.getElementById("editModal"+id).style.display="none";
 }
-
-
-window.onload = function(){
-    calculateAges();
-    applyFilters();
-}
-
-
 
 function saveEditForm(id){
     let form = document.getElementById("editForm"+id);
@@ -391,7 +363,7 @@ function saveEditForm(id){
     .then(res=>{
         alert("Updated successfully!");
         closeEditModal(id);
-        location.reload(); // reload to refresh values + dashboard
+        location.reload();
     })
     .catch(e=>{
         alert("Update failed!");
@@ -430,7 +402,13 @@ function approveRecord(id){
         console.log(e);
     });
 }
+
+window.onload = function(){
+    calculateAges();
+    applyFilters();
+}
 </script>
+
 
 
 
@@ -541,25 +519,79 @@ int id = rs.getInt("enquiry_id");
 
 <div id="editModal<%=id%>" class="modal-overlay" style="display:none;">
 <div class="modal-box">
+
 <div class="modal-header">
-<h3>Edit Enquiry #<%=id%></h3>
-<button class="close-btn" onclick="closeEditModal(<%=id%>)">Close</button>
+    <h3>Edit Enquiry #<%=id%></h3>
+    <button class="close-btn" onclick="closeEditModal(<%=id%>)">Close</button>
 </div>
 
 <form id="editForm<%=id%>" method="post" onsubmit="return saveEditForm(<%=id%>)">
+
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="enquiry_id" value="<%=id%>">
 
+<div class="form-grid">
 
+    <div><label>Student Name</label>
+    <input type="text" name="student_name" value="<%=rs.getString("student_name")%>"></div>
+
+    <div><label>Gender</label>
+    <input type="text" name="gender" value="<%=rs.getString("gender")%>"></div>
+
+    <div><label>Date of Birth</label>
+    <input type="date" name="date_of_birth" value="<%=rs.getString("date_of_birth")%>"></div>
+
+    <div><label>Class</label>
+    <input type="text" name="class_of_admission" value="<%=rs.getString("class_of_admission")%>"></div>
+
+    <div><label>Admission Type</label>
+    <input type="text" name="admission_type" value="<%=rs.getString("admission_type")%>"></div>
+
+    <div><label>Father Name</label>
+    <input type="text" name="father_name" value="<%=rs.getString("father_name")%>"></div>
+
+    <div><label>Father Occupation</label>
+    <input type="text" name="father_occupation" value="<%=rs.getString("father_occupation")%>"></div>
+
+    <div><label>Father Organization</label>
+    <input type="text" name="father_organization" value="<%=rs.getString("father_organization")%>"></div>
+
+    <div><label>Father Mobile</label>
+    <input type="text" name="father_mobile_no" value="<%=rs.getString("father_mobile_no")%>"></div>
+
+    <div><label>Mother Name</label>
+    <input type="text" name="mother_name" value="<%=rs.getString("mother_name")%>"></div>
+
+    <div><label>Mother Occupation</label>
+    <input type="text" name="mother_occupation" value="<%=rs.getString("mother_occupation")%>"></div>
+
+    <div><label>Mother Organization</label>
+    <input type="text" name="mother_organization" value="<%=rs.getString("mother_organization")%>"></div>
+
+    <div><label>Mother Mobile</label>
+    <input type="text" name="mother_mobile_no" value="<%=rs.getString("mother_mobile_no")%>"></div>
+
+    <div><label>Place From</label>
+    <input type="text" name="place_from" value="<%=rs.getString("place_from")%>"></div>
+
+    <div><label>Segment</label>
+    <input type="text" name="segment" value="<%=rs.getString("segment")%>"></div>
+
+    <div><label>Exam Date</label>
+    <input type="date" name="exam_date" value="<%=rs.getString("exam_date")%>"></div>
+
+</div>
+
+<br>
 
 <button class="btn" type="submit">Save Changes</button>
 <button class="btn gray" type="button" onclick="closeEditModal(<%=id%>)">Cancel</button>
+
 </form>
 </div>
 </div>
 
 <% } %>
-
 </div>
 </body>
 </html>

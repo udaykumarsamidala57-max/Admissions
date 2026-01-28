@@ -519,25 +519,79 @@ int id = rs.getInt("enquiry_id");
 
 <div id="editModal<%=id%>" class="modal-overlay" style="display:none;">
 <div class="modal-box">
+
 <div class="modal-header">
-<h3>Edit Enquiry #<%=id%></h3>
-<button class="close-btn" onclick="closeEditModal(<%=id%>)">Close</button>
+    <h3>Edit Enquiry #<%=id%></h3>
+    <button class="close-btn" onclick="closeEditModal(<%=id%>)">Close</button>
 </div>
 
 <form id="editForm<%=id%>" method="post" onsubmit="return saveEditForm(<%=id%>)">
+
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="enquiry_id" value="<%=id%>">
 
+<div class="form-grid">
 
+    <div><label>Student Name</label>
+    <input type="text" name="student_name" value="<%=rs.getString("student_name")%>"></div>
+
+    <div><label>Gender</label>
+    <input type="text" name="gender" value="<%=rs.getString("gender")%>"></div>
+
+    <div><label>Date of Birth</label>
+    <input type="date" name="date_of_birth" value="<%=rs.getString("date_of_birth")%>"></div>
+
+    <div><label>Class</label>
+    <input type="text" name="class_of_admission" value="<%=rs.getString("class_of_admission")%>"></div>
+
+    <div><label>Admission Type</label>
+    <input type="text" name="admission_type" value="<%=rs.getString("admission_type")%>"></div>
+
+    <div><label>Father Name</label>
+    <input type="text" name="father_name" value="<%=rs.getString("father_name")%>"></div>
+
+    <div><label>Father Occupation</label>
+    <input type="text" name="father_occupation" value="<%=rs.getString("father_occupation")%>"></div>
+
+    <div><label>Father Organization</label>
+    <input type="text" name="father_organization" value="<%=rs.getString("father_organization")%>"></div>
+
+    <div><label>Father Mobile</label>
+    <input type="text" name="father_mobile_no" value="<%=rs.getString("father_mobile_no")%>"></div>
+
+    <div><label>Mother Name</label>
+    <input type="text" name="mother_name" value="<%=rs.getString("mother_name")%>"></div>
+
+    <div><label>Mother Occupation</label>
+    <input type="text" name="mother_occupation" value="<%=rs.getString("mother_occupation")%>"></div>
+
+    <div><label>Mother Organization</label>
+    <input type="text" name="mother_organization" value="<%=rs.getString("mother_organization")%>"></div>
+
+    <div><label>Mother Mobile</label>
+    <input type="text" name="mother_mobile_no" value="<%=rs.getString("mother_mobile_no")%>"></div>
+
+    <div><label>Place From</label>
+    <input type="text" name="place_from" value="<%=rs.getString("place_from")%>"></div>
+
+    <div><label>Segment</label>
+    <input type="text" name="segment" value="<%=rs.getString("segment")%>"></div>
+
+    <div><label>Exam Date</label>
+    <input type="date" name="exam_date" value="<%=rs.getString("exam_date")%>"></div>
+
+</div>
+
+<br>
 
 <button class="btn" type="submit">Save Changes</button>
 <button class="btn gray" type="button" onclick="closeEditModal(<%=id%>)">Cancel</button>
+
 </form>
 </div>
 </div>
 
 <% } %>
-
 </div>
 </body>
 </html>

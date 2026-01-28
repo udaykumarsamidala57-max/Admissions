@@ -179,7 +179,7 @@ con1.close();
 <th>Mother Mobile</th>
 <th>Place From</th>
 <th>Segment</th>
-<th>Approved</th>
+
 
 <th>Total Marks</th>
 
@@ -240,7 +240,7 @@ while(rs.next()){
 <td class="center"><%=rs.getString("mother_mobile_no")%></td>
 <td><%=rs.getString("place_from")%></td>
 <td class="center"><%=rs.getString("segment")%></td>
-<td class="center"><%=rs.getString("approved")%></td>
+
 
 <td class="center bold"><%=rs.getInt("total_marks")%></td>
 

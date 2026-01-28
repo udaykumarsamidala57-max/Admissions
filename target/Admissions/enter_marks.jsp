@@ -16,8 +16,151 @@
 <head>
 <title>Enter Exam Marks</title>
 
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+    margin: 0;
+    background: linear-gradient(to right, #eef2f7, #f8fafc);
+}
+
+/* ================= CARD CONTAINER ================= */
+.container {
+    max-width: 1300px;
+    margin: 25px auto;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* ================= FILTER BAR ================= */
+.filter-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+select, input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccd6e0;
+    background: #f8fafc;
+    font-size: 14px;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* ================= TABLE AREA ================= */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+}
+
+.marksTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.marksTable th {
+    background: #2c3e50;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.marksTable td {
+    padding: 8px;
+    border-bottom: 1px solid #e5e9f2;
+    text-align: center;
+    background: #fff;
+}
+
+.marksTable tr:hover td {
+    background: #f9fbff;
+}
+
+/* ================= INPUT STYLES ================= */
+.markInput {
+    width: 60px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccd6e0;
+    text-align: center;
+}
+
+.markInput.changed,
+.remarksBox.changed {
+    background: #fff3cd !important;
+    border-color: #f39c12;
+}
+
+.totalBox, .percentBox {
+    width: 85px;
+    font-weight: 600;
+    background: #ecf0f1;
+    border: none;
+    text-align: center;
+}
+
+.remarksBox {
+    width: 200px;
+    border-radius: 6px;
+    border: 1px solid #ccd6e0;
+    padding: 5px;
+}
+
+/* ================= BUTTON ================= */
+.save-btn {
+    margin-top: 18px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(45deg, #3498db, #2c80b4);
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.save-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+}
+
+/* Responsive */
+@media(max-width: 768px){
+    .filter-bar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
 <script>
-/* ================= FIX TABLE STRUCTURE (NO THEAD/TBODY SAFE) ================= */
+/* ================= FIX TABLE STRUCTURE ================= */
 function fixTable() {
     var table = document.querySelector("#dataArea table");
     if (!table) return;
@@ -112,6 +255,8 @@ function loadStudentsAndExams() {
 
 /* ================= TRACK CHANGES ================= */
 function hookChangeTracking() {
+
+    // Track MARKS
     var inputs = document.getElementsByClassName("markInput");
     for (var i = 0; i < inputs.length; i++) {
         inputs[i].setAttribute("data-old", inputs[i].value);
@@ -122,6 +267,19 @@ function hookChangeTracking() {
                 this.classList.remove("changed");
             }
             calculateRow(this);
+        });
+    }
+
+    // Track REMARKS
+    var remarks = document.getElementsByClassName("remarksBox");
+    for (var i = 0; i < remarks.length; i++) {
+        remarks[i].setAttribute("data-old", remarks[i].value);
+        remarks[i].addEventListener("input", function () {
+            if (this.value !== this.getAttribute("data-old")) {
+                this.classList.add("changed");
+            } else {
+                this.classList.remove("changed");
+            }
         });
     }
 }
@@ -147,7 +305,6 @@ function calculateRow(anyInputInRow) {
     var totalObtained = 0;
     var totalMax = 0;
 
-    // 🔥 Find all subject header indexes (those containing "(number)")
     var subjectHeaderIndexes = [];
     for (var h = 0; h < headerRow.cells.length; h++) {
         if (headerRow.cells[h].innerText.includes("(")) {
@@ -155,17 +312,14 @@ function calculateRow(anyInputInRow) {
         }
     }
 
-    // 🛡️ Safety check
     if (subjectHeaderIndexes.length === 0) return;
 
-    // 🔁 Loop subject inputs only
     for (var i = 0; i < inputs.length; i++) {
         var obtained = parseFloat(inputs[i].value);
         if (!isNaN(obtained)) {
             totalObtained += obtained;
         }
 
-        // Get correct header for this subject
         var th = headerRow.cells[subjectHeaderIndexes[i]];
         var maxMatch = th.innerText.match(/\((\d+)\)/);
 
@@ -174,11 +328,9 @@ function calculateRow(anyInputInRow) {
         }
     }
 
-    // ✅ Set total
     var totalBox = row.querySelector(".totalBox");
     if (totalBox) totalBox.value = totalObtained;
 
-    // ✅ Set percentage
     var percentBox = row.querySelector(".percentBox");
     if (percentBox && totalMax > 0) {
         var percent = (totalObtained / totalMax) * 100;
@@ -196,89 +348,6 @@ function calculateAllRows() {
 }
 </script>
 
-<style>
-* { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
-body { margin: 0; padding: 0; background: #eef2f7; }
-
-.container {
-    max-width: 1200px;
-    margin: 20px auto;
-    background: #ffffff;
-    padding: 20px 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-
-/* ======= TOP CONTROLS DESIGN ======= */
-.topBar {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.topBar label {
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.topBar select,
-.topBar input[type="date"] {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #cfd6e0;
-    font-size: 14px;
-    outline: none;
-}
-
-.topBar select:focus,
-.topBar input[type="date"]:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52,152,219,0.15);
-}
-
-/* ======= TABLE ======= */
-.marksTable { border-collapse: collapse; width: 100%; }
-
-.marksTable th {
-    background: #2c3e50;
-    color: #ffffff;
-    padding: 10px;
-}
-
-.marksTable td {
-    padding: 8px;
-    border-bottom: 1px solid #e1e6ef;
-    text-align: center;
-}
-
-.markInput { width: 60px; padding: 5px; text-align: center; }
-.markInput.changed { background: #fff3cd; }
-
-.totalBox, .percentBox {
-    width: 80px;
-    font-weight: bold;
-    background: #ecf0f1;
-    text-align: center;
-}
-
-/* ======= BUTTONS (FROM SERVLET IF ANY) ======= */
-button, input[type="submit"] {
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: none;
-    background: #3498db;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-button:hover, input[type="submit"]:hover {
-    background: #2c80b4;
-}
-</style>
-
 </head>
 <body>
 
@@ -286,35 +355,40 @@ button:hover, input[type="submit"]:hover {
 
 <div class="container">
 
+<div class="page-title">📘 Exam Marks Entry</div>
+
 <form method="post" action="SaveMarksServlet" onsubmit="return beforeSubmit();">
 
-    <div class="topBar">
-        <div>
-            <label>Date:</label><br>
-            <input type="date" id="exam_date" onchange="loadStudentsAndExams()" value="<%= java.time.LocalDate.now() %>">
-            <input type="hidden" name="exam_date_hidden" id="exam_date_hidden">
-        </div>
-
-        <div>
-            <label>Class:</label><br>
-            <select name="class_id" id="class_id" onchange="loadStudentsAndExams()">
-                <option value="">-- Select Class --</option>
-                <%
-                Connection con = DBUtil.getConnection();
-                Statement st = con.createStatement();
-                ResultSet rs = st.executeQuery("SELECT class_id, class_name FROM classes");
-                while(rs.next()){
-                %>
-                <option value="<%=rs.getInt("class_id")%>"><%=rs.getString("class_name")%></option>
-                <% } con.close(); %>
-            </select>
-        </div>
+<div class="filter-bar">
+    <div>
+        <label>Exam Date</label><br>
+        <input type="date" id="exam_date" onchange="loadStudentsAndExams()" value="<%= java.time.LocalDate.now() %>">
+        <input type="hidden" name="exam_date_hidden" id="exam_date_hidden">
     </div>
 
+    <div>
+        <label>Class</label><br>
+        <select name="class_id" id="class_id" onchange="loadStudentsAndExams()">
+            <option value="">-- Select Class --</option>
+            <%
+            Connection con = DBUtil.getConnection();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT class_id, class_name FROM classes");
+            while(rs.next()){
+            %>
+            <option value="<%=rs.getInt("class_id")%>"><%=rs.getString("class_name")%></option>
+            <% } con.close(); %>
+        </select>
+    </div>
+</div>
+
+<div class="table-wrapper">
     <div id="dataArea"></div>
+</div>
+
+<button type="submit" class="save-btn">💾 Save Marks</button>
 
 </form>
-
 </div>
 
 </body>
