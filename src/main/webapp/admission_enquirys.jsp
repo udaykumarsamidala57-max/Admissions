@@ -246,21 +246,36 @@ tr:hover{ background:#eef2ff; }
 }
 </style>
 <script>
-/* ================= FILTER + DASHBOARD + AGE + EXPORT ================= */
+
 
 function calculateAges(){
     let cells = document.querySelectorAll(".age-cell");
-    cells.forEach(cell=>{
+
+    cells.forEach(cell => {
         let dob = cell.dataset.dob;
-        if(!dob) return;
-        let d = new Date(dob);
+        if (!dob) return;
+
+        let birthDate = new Date(dob);
         let today = new Date();
-        let age = today.getFullYear() - d.getFullYear();
-        let m = today.getMonth() - d.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < d.getDate())) {
-            age--;
+
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
+
+        // Fix days
+        if (days < 0) {
+            months--;
+            let prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += prevMonth.getDate();
         }
-        cell.innerText = age;
+
+        // Fix months
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        cell.innerText = years + "Y " + months + "M " + days + "D";
     });
 }
 
@@ -306,20 +321,36 @@ function applyFilters(){
     document.getElementById("countRes").innerText = res;
 }
 
-function downloadExcel(){
-    let table = document.querySelector("table");
-    let html = table.outerHTML.replace(/ /g, '%20');
+function downloadExcel() {
+    const table = document.getElementById('enquiryTable');
+    let csv = [];
 
-    let url = 'data:application/vnd.ms-excel,' + html;
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = 'Admission_Enquiry.xls';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        let cols = row.querySelectorAll('th, td');
+        let rowData = [];
+        cols.forEach(cell => {
+            let text = cell.innerText.replace(/\n/g, ' ').replace(/"/g, '""').trim();
+            rowData.push('"' + text + '"');
+        });
+        csv.push(rowData.join(','));
+    });
+
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'enquiryTable.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-/* ================= MODAL FUNCTIONS ================= */
+
+
 
 function openEditModal(id){
     document.getElementById("editModal"+id).style.display="flex";
@@ -329,14 +360,13 @@ function closeEditModal(id){
     document.getElementById("editModal"+id).style.display="none";
 }
 
-/* ================= INIT ================= */
+
 window.onload = function(){
     calculateAges();
     applyFilters();
 }
-</script>
-<script>
-/* ================= AJAX ================= */
+
+
 
 function saveEditForm(id){
     let form = document.getElementById("editForm"+id);
@@ -388,11 +418,7 @@ function approveRecord(id){
 }
 </script>
 
-<!-- ===== YOUR EXISTING SCRIPT (FILTER, DASHBOARD, EXPORT, AGE) REMAINS SAME ===== -->
-<script>
-/* PASTE YOUR FULL SCRIPT HERE EXACTLY AS IT IS */
-/* (I am not removing anything from your logic) */
-</script>
+
 
 </head>
 
@@ -424,7 +450,8 @@ function approveRecord(id){
 </div>
 
 <div class="table-wrap">
-<table>
+<table id="enquiryTable">
+
 <tr>
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
@@ -491,7 +518,7 @@ Approve
 </table>
 </div>
 
-<!-- ===== EDIT MODALS ===== -->
+
 <%
 rs.beforeFirst();
 while(rs!=null && rs.next()){
@@ -509,7 +536,7 @@ int id = rs.getInt("enquiry_id");
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="enquiry_id" value="<%=id%>">
 
-<!-- YOUR SAME FORM FIELDS HERE -->
+
 
 <button class="btn" type="submit">Save Changes</button>
 <button class="btn gray" type="button" onclick="closeEditModal(<%=id%>)">Cancel</button>
