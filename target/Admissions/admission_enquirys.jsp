@@ -579,10 +579,20 @@ int id = rs.getInt("enquiry_id");
     <input type="text" name="segment" value="<%=rs.getString("segment")%>"></div>
 
     <div><label>Exam Date</label>
-    <input type="date" name="exam_date" value="<%=rs.getString("exam_date")%>"></div>
-    
-    <div><label>Application No</label>
-    <input type="text" name="application_no" value="<%=rs.getString("application_no")%>"></div>
+<input type="date" name="exam_date"
+       value="<%= rs.getString("exam_date") == null ? "" : rs.getString("exam_date") %>"></div>
+
+<div><label>General Remarks</label>
+<input type="text" name="general_remarks"
+       value="<%= rs.getString("general_remarks") == null ? "" : rs.getString("general_remarks") %>"></div>
+
+<div><label>Entrance Remarks</label>
+<input type="text" name="entrance_remarks"
+       value="<%= rs.getString("entrance_remarks") == null ? "" : rs.getString("entrance_remarks") %>"></div>
+
+<div><label>Application No</label>
+<input type="text" name="application_no"
+       value="<%= rs.getString("application_no") == null ? "" : rs.getString("application_no") %>"></div>
 
 </div>
 

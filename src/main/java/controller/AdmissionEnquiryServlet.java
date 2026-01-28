@@ -12,6 +12,21 @@ import javax.sql.rowset.RowSetProvider;
 @WebServlet("/admission")
 public class AdmissionEnquiryServlet extends HttpServlet {
 
+    // ================= NULL SAFE HELPER =================
+    private String nullIfEmpty(HttpServletRequest req, String name) {
+        String v = req.getParameter(name);
+        if (v == null || v.trim().isEmpty()) return null;
+        return v.trim();
+    }
+
+    // ================= DATE HELPER =================
+    private java.sql.Date getSqlDate(HttpServletRequest req, String name) {
+        String v = req.getParameter(name);
+        if (v == null || v.trim().isEmpty()) return null;
+        return java.sql.Date.valueOf(v); // yyyy-MM-dd
+    }
+
+    // ============================ GET ============================
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -37,64 +52,47 @@ public class AdmissionEnquiryServlet extends HttpServlet {
 
         try (Connection con = DBUtil.getConnection()) {
 
+            con.setAutoCommit(false); // 🔥 TRANSACTION START
+
             // ================= APPROVE =================
             if ("approve".equalsIgnoreCase(action)) {
-
                 int id = Integer.parseInt(req.getParameter("id"));
 
-                PreparedStatement ps = con.prepareStatement(
-                        "UPDATE admission_enquiry " +
-                        "SET approved='Approved' " +
-                        "WHERE enquiry_id=? AND (approved IS NULL OR approved <> 'Approved')"
-                );
-                ps.setInt(1, id);
-                ps.executeUpdate();
-            }
+                try (PreparedStatement ps = con.prepareStatement(
+                        "UPDATE admission_enquiry SET approved='Approved' " +
+                        "WHERE enquiry_id=? AND (approved IS NULL OR approved <> 'Approved')")) {
 
-            // ================= EDIT =================
-            if ("edit".equalsIgnoreCase(action)) {
-
-                int id = Integer.parseInt(req.getParameter("id"));
-
-                PreparedStatement ps = con.prepareStatement(
-                        "SELECT * FROM admission_enquiry WHERE enquiry_id=?");
-                ps.setInt(1, id);
-                ResultSet rs = ps.executeQuery();
-
-                CachedRowSet editRow = RowSetProvider
-                        .newFactory()
-                        .createCachedRowSet();
-                editRow.populate(rs);
-
-                req.setAttribute("editData", editRow);
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                }
+                con.commit();
             }
 
             // ================= DELETE =================
             if ("delete".equalsIgnoreCase(action)) {
-
                 int id = Integer.parseInt(req.getParameter("id"));
 
-                PreparedStatement ps = con.prepareStatement(
-                        "DELETE FROM admission_enquiry WHERE enquiry_id=?");
-                ps.setInt(1, id);
-                ps.executeUpdate();
+                try (PreparedStatement ps = con.prepareStatement(
+                        "DELETE FROM admission_enquiry WHERE enquiry_id=?")) {
+
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                }
+                con.commit();
             }
 
             // ================= LIST =================
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery(
-                    "SELECT * FROM admission_enquiry ORDER BY enquiry_id DESC");
+            try (Statement st = con.createStatement();
+                 ResultSet rs = st.executeQuery(
+                    "SELECT * FROM admission_enquiry ORDER BY enquiry_id DESC")) {
 
-            CachedRowSet list = RowSetProvider
-                    .newFactory()
-                    .createCachedRowSet();
-            list.populate(rs);
-
-            req.setAttribute("list", list);
+                CachedRowSet list = RowSetProvider.newFactory().createCachedRowSet();
+                list.populate(rs);
+                req.setAttribute("list", list);
+            }
 
             // ================= FORWARD =================
-            req.getRequestDispatcher("admission_enquirys.jsp")
-               .forward(req, resp);
+            req.getRequestDispatcher("admission_enquirys.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,75 +100,97 @@ public class AdmissionEnquiryServlet extends HttpServlet {
         }
     }
 
+    // ============================ POST ============================
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
+        System.out.println("==== Admission POST Called ====");
+        req.getParameterMap().forEach((k,v) ->
+            System.out.println(k + " = " + java.util.Arrays.toString(v))
+        );
+
         String id = req.getParameter("enquiry_id");
+
+        String student = req.getParameter("student_name");
+        if (student == null || student.trim().isEmpty()) {
+            resp.sendError(400, "Student name required");
+            return;
+        }
+
+        boolean isInsert = (id == null || id.trim().isEmpty());
 
         try (Connection con = DBUtil.getConnection()) {
 
-            // ================= INSERT =================
-            if (id == null || id.trim().isEmpty()) {
+            con.setAutoCommit(false);  // 🔥 VERY IMPORTANT
 
-                PreparedStatement ps = con.prepareStatement(
-                        "INSERT INTO admission_enquiry " +
-                        "(student_name, gender, date_of_birth, class_of_admission, " +
-                        "admission_type, father_name, father_mobile_no, " +
-                        "mother_name, mother_mobile_no, place_from, segment) " +
-                        "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-                );
+            String sql;
 
-                ps.setString(1, req.getParameter("student_name"));
-                ps.setString(2, req.getParameter("gender"));
-                ps.setString(3, req.getParameter("date_of_birth"));
-                ps.setString(4, req.getParameter("class_of_admission"));
-                ps.setString(5, req.getParameter("admission_type"));
-                ps.setString(6, req.getParameter("father_name"));
-                ps.setString(7, req.getParameter("father_mobile_no"));
-                ps.setString(8, req.getParameter("mother_name"));
-                ps.setString(9, req.getParameter("mother_mobile_no"));
-                ps.setString(10, req.getParameter("place_from"));
-                ps.setString(11, req.getParameter("segment"));
-
-                ps.executeUpdate();
-
+            if (isInsert) {
+                sql =
+                    "INSERT INTO admission_enquiry " +
+                    "(student_name, gender, date_of_birth, class_of_admission, admission_type, " +
+                    "father_name, father_occupation, father_organization, father_mobile_no, " +
+                    "mother_name, mother_occupation, mother_organization, mother_mobile_no, " +
+                    "place_from, segment, exam_date, general_remarks, entrance_remarks, application_no) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             } else {
-            	PreparedStatement ps = con.prepareStatement(
-            		    "UPDATE admission_enquiry SET " +
-            		    "student_name=?, gender=?, date_of_birth=?, " +
-            		    "class_of_admission=?, admission_type=?, father_name=?, " +
-            		    "father_mobile_no=?, mother_name=?, mother_mobile_no=?, " +
-            		    "place_from=?, segment=?, exam_date=? WHERE enquiry_id=?"
-            		);
-
-            		ps.setString(1, req.getParameter("student_name"));
-            		ps.setString(2, req.getParameter("gender"));
-            		ps.setString(3, req.getParameter("date_of_birth"));
-            		ps.setString(4, req.getParameter("class_of_admission"));
-            		ps.setString(5, req.getParameter("admission_type"));
-            		ps.setString(6, req.getParameter("father_name"));
-            		ps.setString(7, req.getParameter("father_mobile_no"));
-            		ps.setString(8, req.getParameter("mother_name"));
-            		ps.setString(9, req.getParameter("mother_mobile_no"));
-            		ps.setString(10, req.getParameter("place_from"));
-            		ps.setString(11, req.getParameter("segment"));
-
-            		// ✅ DATE
-            		String examDateStr = req.getParameter("exam_date");
-            		ps.setDate(12, java.sql.Date.valueOf(examDateStr));
-
-            		// ✅ WHERE ID
-            		ps.setInt(13, Integer.parseInt(req.getParameter("enquiry_id")));
-
-            		ps.executeUpdate();
+                sql =
+                    "UPDATE admission_enquiry SET " +
+                    "student_name=?, gender=?, date_of_birth=?, class_of_admission=?, admission_type=?, " +
+                    "father_name=?, father_occupation=?, father_organization=?, father_mobile_no=?, " +
+                    "mother_name=?, mother_occupation=?, mother_organization=?, mother_mobile_no=?, " +
+                    "place_from=?, segment=?, exam_date=?, general_remarks=?, entrance_remarks=?, application_no=? " +
+                    "WHERE enquiry_id=?";
             }
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+                int i = 1;
+
+                ps.setString(i++, nullIfEmpty(req,"student_name"));
+                ps.setString(i++, nullIfEmpty(req,"gender"));
+
+                java.sql.Date dob = getSqlDate(req,"date_of_birth");
+                if(dob == null) ps.setNull(i++, Types.DATE);
+                else ps.setDate(i++, dob);
+
+                ps.setString(i++, nullIfEmpty(req,"class_of_admission"));
+                ps.setString(i++, nullIfEmpty(req,"admission_type"));
+                ps.setString(i++, nullIfEmpty(req,"father_name"));
+                ps.setString(i++, nullIfEmpty(req,"father_occupation"));
+                ps.setString(i++, nullIfEmpty(req,"father_organization"));
+                ps.setString(i++, nullIfEmpty(req,"father_mobile_no"));
+                ps.setString(i++, nullIfEmpty(req,"mother_name"));
+                ps.setString(i++, nullIfEmpty(req,"mother_occupation"));
+                ps.setString(i++, nullIfEmpty(req,"mother_organization"));
+                ps.setString(i++, nullIfEmpty(req,"mother_mobile_no"));
+                ps.setString(i++, nullIfEmpty(req,"place_from"));
+                ps.setString(i++, nullIfEmpty(req,"segment"));
+                ps.setString(i++, nullIfEmpty(req,"exam_date"));   // VARCHAR in DB
+                ps.setString(i++, nullIfEmpty(req,"general_remarks"));
+                ps.setString(i++, nullIfEmpty(req,"entrance_remarks"));
+                ps.setString(i++, nullIfEmpty(req,"application_no"));
+
+                if (!isInsert) {
+                    ps.setInt(i++, Integer.parseInt(id));
+                }
+
+                int rows = ps.executeUpdate();
+                System.out.println("DB rows affected = " + rows);
+
+                con.commit();   // ✅ 🔥 THIS WAS YOUR MISSING PIECE
+                System.out.println("=== COMMIT DONE ===");
+            }
+
+            resp.setContentType("text/plain");
+            resp.getWriter().print("OK");
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServletException(e);
+            resp.sendError(500, e.getMessage());
         }
-
-        resp.sendRedirect("admission");
     }
 }

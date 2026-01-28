@@ -336,7 +336,9 @@ function calculateAllRows() {
 
 <div class="page-title">📘 Exam Marks Entry</div>
 
-<form method="post" action="SaveMarksServlet" onsubmit="return beforeSubmit();">
+<form method="post" action="SaveMarksServlet">
+
+
 
 <div class="filter-bar">
     <div>
