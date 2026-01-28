@@ -185,12 +185,6 @@ function fixTable() {
 
     var headerRow = thead.rows[0];
 
-    if (headerRow.cells[0].innerText.trim() !== "S.No") {
-        var th = document.createElement("th");
-        th.innerText = "S.No";
-        headerRow.insertBefore(th, headerRow.cells[0]);
-    }
-
     if (headerRow.cells[headerRow.cells.length - 1].innerText.trim() !== "Percentage") {
         var thp = document.createElement("th");
         thp.innerText = "Percentage";
@@ -200,12 +194,6 @@ function fixTable() {
     var rows = tbody.rows;
     for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
-
-        if (row.cells[0].className !== "sno") {
-            var td = document.createElement("td");
-            td.className = "sno";
-            row.insertBefore(td, row.cells[0]);
-        }
 
         var lastCell = row.cells[row.cells.length - 1];
         if (!lastCell.querySelector || !lastCell.querySelector(".percentBox")) {
@@ -217,14 +205,6 @@ function fixTable() {
             td2.appendChild(inp);
             row.appendChild(td2);
         }
-    }
-}
-
-/* ================= SERIAL NUMBER ================= */
-function addSerialNumbers() {
-    var rows = document.querySelectorAll("#dataArea table tbody tr");
-    for (var i = 0; i < rows.length; i++) {
-        rows[i].querySelector(".sno").innerText = i + 1;
     }
 }
 
@@ -247,7 +227,6 @@ function loadStudentsAndExams() {
 
         fixTable();
         hookChangeTracking();
-        addSerialNumbers();
         calculateAllRows();
     };
     xhr.send();

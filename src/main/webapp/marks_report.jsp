@@ -1,16 +1,15 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="bean.DBUtil" %>
+
 <%
     HttpSession sess = request.getSession(false);
     if (sess == null || sess.getAttribute("username") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
-
-    String role = (String) sess.getAttribute("role");
-    String User = (String) sess.getAttribute("username");
 %>
+
 <%
 String selectedClass = request.getParameter("class_of_admission");
 String selectedDate  = request.getParameter("exam_date");
@@ -22,116 +21,185 @@ if("1".equals(download)){
     response.setHeader("Content-Disposition","attachment; filename=Student_Total_Marks_Full_Report.xls");
 }
 %>
+
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Student Master Marks Report</title>
+<title>Entrance Test Report</title>
 
 <style>
-body { font-family: 'Segoe UI', Arial; background:#eef2f7; margin:0; padding:0; }
+/* ===== Base ===== */
+body {
+    font-family: "Segoe UI", system-ui, Arial;
+    background:#eef2f7;
+    margin:0;
+}
 
+/* ===== Layout ===== */
 .container {
-    width: 98%;
-    margin: 15px auto;
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    width: 100%;
+    padding: 10px;
 }
 
+.card {
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.08);
+    padding:12px;
+}
+
+/* ===== Heading ===== */
 h2 {
-    margin: 5px 0 15px 0;
     text-align:center;
-    color:#2c3e50;
+    margin: 6px 0 14px 0;
+    color:#1f2937;
+    letter-spacing:0.3px;
 }
 
+/* ===== Filters ===== */
 .filters {
-    background: #f8fafc;
-    padding: 12px;
-    border-radius: 8px;
+    background:#f8fafc;
+    padding:10px;
+    border-radius:10px;
     display:flex;
+    gap:10px;
+    flex-wrap:wrap;
     align-items:center;
-    gap:12px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-bottom:12px;
 }
 
-.filters label { font-weight:600; }
+.filters label {
+    font-weight:600;
+    color:#334155;
+}
 
 .filters select, .filters input {
     padding:8px 10px;
-    border-radius:6px;
-    border:1px solid #ccc;
+    border-radius:8px;
+    border:1px solid #cbd5e1;
 }
 
 .btn {
-    padding:9px 18px;
+    padding:8px 18px;
     border:none;
-    border-radius:6px;
+    border-radius:8px;
     cursor:pointer;
     font-weight:600;
 }
 
-.search { background:#3498db; color:white; }
-.search:hover { background:#2c80b4; }
+.search { background:#2563eb; color:white; }
+.search:hover { background:#1d4ed8; }
 
-.excel { background:#27ae60; color:white; }
-.excel:hover { background:#219150; }
+.excel { background:#16a34a; color:white; }
+.excel:hover { background:#15803d; }
 
+/* ===== Table Wrapper ===== */
 .table-wrap {
-    overflow-x: auto;
-    border-radius:8px;
-}
-
-table {
-    border-collapse: collapse;
     width: 100%;
-    font-size: 13px;
+    overflow-x: auto;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
 }
 
+/* ===== Table ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;   /* 🔥 Important for wrapping */
+    font-size: 14px;
+}
+
+/* Column widths */
+th:nth-child(1), td:nth-child(1) { width: 60px; }
+th:nth-child(2), td:nth-child(2) { width: 180px; }
+th:nth-child(3), td:nth-child(3) { width: 70px; }
+th:nth-child(4), td:nth-child(4) { width: 90px; }
+th:nth-child(5), td:nth-child(5) { width: 80px; }
+th:nth-child(6), td:nth-child(6) { width: 110px; }
+th:nth-child(7), td:nth-child(7) { width: 160px; }
+th:nth-child(8), td:nth-child(8) { width: 130px; }
+th:nth-child(9), td:nth-child(9) { width: 170px; }
+th:nth-child(10), td:nth-child(10) { width: 160px; }
+th:nth-child(11), td:nth-child(11) { width: 130px; }
+th:nth-child(12), td:nth-child(12) { width: 170px; }
+th:nth-child(13), td:nth-child(13) { width: 140px; }
+th:nth-child(14), td:nth-child(14) { width: 90px; }
+th:nth-child(15), td:nth-child(15) { width: 90px; }
+
+/* Header */
 th {
-    background:#2c3e50;
+    background:#0f172a;
     color:white;
-    padding:8px;
+    padding:10px 8px;
     position: sticky;
     top: 0;
     z-index: 5;
     text-align:center;
-    white-space: nowrap;
+    font-weight:600;
 }
 
+/* Cells */
 td {
-    padding:7px 8px;
-    border-bottom:1px solid #ddd;
-    white-space: nowrap;
+    padding:10px 8px;
+    border-bottom:1px solid #e5e7eb;
+    vertical-align: top;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;   /* 🔥 Enables wrapping */
+    line-height: 1.4;
 }
 
-tr:nth-child(even){ background:#f7f9fc; }
+/* Zebra */
+tr:nth-child(even){ background:#f8fafc; }
 tr:hover{ background:#eef5ff; }
 
+/* Alignment */
 .center { text-align:center; }
-.bold { font-weight:bold; color:#1e8449; }
+.left   { text-align:left; }
 
+/* TOTAL column */
+.total-marks {
+    font-size: 18px;
+    font-weight: 800;
+    color: #065f46;
+    text-align: center;
+    background: #ecfdf5;
+}
+
+th.total-header {
+    background: #065f46;
+}
+
+/* No data */
 .no-data {
     text-align:center;
-    color:red;
+    color:#dc2626;
     font-weight:bold;
     padding:20px;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    table {
+        min-width: 1200px;
+    }
 }
 </style>
 </head>
 
 <body>
+
 <div class="no-print">
     <jsp:include page="common_header.jsp" />
 </div>
+
 <div class="container">
+<div class="card">
 
 <h2>Entrance Test Report</h2>
 
 <form method="get">
-
 <div class="filters">
 
 <label>Class:</label>
@@ -162,8 +230,10 @@ con1.close();
 <div class="table-wrap">
 
 <table>
+<thead>
 <tr>
-<th>ID</th>
+<th>S.No</th>
+<th>E ID</th>
 <th>Student Name</th>
 <th>Gender</th>
 <th>DOB</th>
@@ -172,18 +242,15 @@ con1.close();
 <th>Father Name</th>
 <th>Father Occ.</th>
 <th>Father Org.</th>
-<th>Father Mobile</th>
 <th>Mother Name</th>
 <th>Mother Occ.</th>
 <th>Mother Org.</th>
-<th>Mother Mobile</th>
-<th>Place From</th>
+<th>Place</th>
 <th>Segment</th>
-
-
-<th>Total Marks</th>
-
+<th class="total-header">TOTAL</th>
 </tr>
+</thead>
+<tbody>
 
 <%
 Connection con = DBUtil.getConnection();
@@ -218,32 +285,29 @@ for(int i=0;i<params.size();i++){
 ResultSet rs = ps.executeQuery();
 
 boolean found = false;
-
+int sno = 1;
 while(rs.next()){
+	
     found = true;
 %>
 
 <tr>
+ <td class="center"><%=sno++%></td>
 <td class="center"><%=rs.getInt("enquiry_id")%></td>
-<td><%=rs.getString("student_name")%></td>
+<td class="left"><%=rs.getString("student_name")%></td>
 <td class="center"><%=rs.getString("gender")%></td>
 <td class="center"><%=rs.getString("date_of_birth")%></td>
 <td class="center"><%=rs.getString("class_of_admission")%></td>
 <td class="center"><%=rs.getString("admission_type")%></td>
-<td><%=rs.getString("father_name")%></td>
-<td><%=rs.getString("father_occupation")%></td>
-<td><%=rs.getString("father_organization")%></td>
-<td class="center"><%=rs.getString("father_mobile_no")%></td>
-<td><%=rs.getString("mother_name")%></td>
-<td><%=rs.getString("mother_occupation")%></td>
-<td><%=rs.getString("mother_organization")%></td>
-<td class="center"><%=rs.getString("mother_mobile_no")%></td>
-<td><%=rs.getString("place_from")%></td>
+<td class="left"><%=rs.getString("father_name")%></td>
+<td class="left"><%=rs.getString("father_occupation")%></td>
+<td class="left"><%=rs.getString("father_organization")%></td>
+<td class="left"><%=rs.getString("mother_name")%></td>
+<td class="left"><%=rs.getString("mother_occupation")%></td>
+<td class="left"><%=rs.getString("mother_organization")%></td>
+<td class="left"><%=rs.getString("place_from")%></td>
 <td class="center"><%=rs.getString("segment")%></td>
-
-
-<td class="center bold"><%=rs.getInt("total_marks")%></td>
-
+<td class="total-marks"><%=rs.getInt("total_marks")%></td>
 </tr>
 
 <%
@@ -252,7 +316,7 @@ while(rs.next()){
 if(!found){
 %>
 <tr>
-<td colspan="20" class="no-data">No data found</td>
+<td colspan="16" class="no-data">No data found</td>
 </tr>
 <%
 }
@@ -260,10 +324,11 @@ if(!found){
 con.close();
 %>
 
+</tbody>
 </table>
 
 </div>
-
+</div>
 </div>
 
 </body>

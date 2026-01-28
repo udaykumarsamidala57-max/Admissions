@@ -448,7 +448,7 @@ window.onload = function(){
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
 <th>F Mobile</th><th>Mother</th><th>M Occ</th><th>M Org</th>
-<th>M Mobile</th><th>Place</th><th>Segment</th><th>Exam Date</th><th>Action</th><th>Approval</th>
+<th>M Mobile</th><th>Place</th><th>Segment</th><th>Exam Date</th><th>App No</th><th>Action</th><th>Approval</th>
 </tr>
 
 <%
@@ -483,6 +483,7 @@ while(rs!=null && rs.next()){
 <td><%=rs.getString("place_from")%></td>
 <td><%=rs.getString("segment")%></td>
 <td><%=rs.getString("exam_date")%></td>
+<td><%=rs.getString("application_no")%></td>
 
 <td>
 <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
@@ -579,6 +580,9 @@ int id = rs.getInt("enquiry_id");
 
     <div><label>Exam Date</label>
     <input type="date" name="exam_date" value="<%=rs.getString("exam_date")%>"></div>
+    
+    <div><label>Application No</label>
+    <input type="text" name="application_no" value="<%=rs.getString("application_no")%>"></div>
 
 </div>
 

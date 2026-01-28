@@ -18,6 +18,8 @@ import bean.DBUtil;
 @WebServlet("/LoadStudentsAndExamsServlet")
 public class LoadStudentsAndExamsServlet extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         response.setContentType("text/html;charset=UTF-8");
@@ -26,7 +28,7 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
         int classId = Integer.parseInt(request.getParameter("class_id"));
         String examDate = request.getParameter("exam_date");
 
-        if (examDate == null || examDate.trim().equals("")) {
+        if (examDate == null || examDate.trim().isEmpty()) {
             out.println("<p style='color:red;'>Please select exam date.</p>");
             return;
         }
@@ -63,17 +65,23 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
 
             // ================= LOAD STUDENTS =================
             PreparedStatement psStudents = con.prepareStatement(
-                "SELECT ae.enquiry_id, ae.student_name, ae.entrance_remarks " +
+                "SELECT " +
+                " ae.enquiry_id, " +
+                " IFNULL(ae.application_no, '') AS application_no, " +
+                " COALESCE(ae.student_name, ae.entrance_remarks) AS student_name, " +
+                " ae.entrance_remarks " +
                 "FROM admission_enquiry ae " +
-                "JOIN classes c ON ae.class_of_admission = c.class_name " +
-                "WHERE c.class_id=? AND ae.approved='Approved' AND ae.exam_date=?"
+                "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
+                "WHERE c.class_id=? AND ae.approved='Approved' AND ae.exam_date=? " +
+                "ORDER BY ae.enquiry_id"
             );
+
             psStudents.setInt(1, classId);
             psStudents.setString(2, examDate);
 
             ResultSet rsStudents = psStudents.executeQuery();
 
-            // ================= LOAD ALL MARKS AT ONCE =================
+            // ================= LOAD ALL MARKS =================
             PreparedStatement psAllMarks = con.prepareStatement(
                 "SELECT enquiry_id, exam_id, marks_obtained FROM student_exam_marks WHERE exam_date=?"
             );
@@ -81,7 +89,6 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
 
             ResultSet rsAllMarks = psAllMarks.executeQuery();
 
-            // Map<enquiryId_examId, marks>
             HashMap<String, Integer> marksMap = new HashMap<>();
 
             while (rsAllMarks.next()) {
@@ -92,28 +99,39 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
             rsAllMarks.close();
             psAllMarks.close();
 
-            boolean found = false;
-
             // ================= TABLE HEADER =================
             out.println("<table class='marksTable'>");
-            out.println("<tr><th>Enquiry</th><th>Name</th><th>Entrance Remarks</th>");
+            out.println("<tr>");
+            out.println("<th>S.No</th>");
+            out.println("<th>Enquiry ID</th>");
+            out.println("<th>Application No</th>");
+            out.println("<th>Student Name</th>");
+            out.println("<th>Entrance Remarks</th>");
 
             for (int i = 0; i < examNames.size(); i++) {
-                out.println("<th>" + escapeHtml(examNames.get(i)) + "<br>(" + maxMarks.get(i) + ")</th>");
+                out.println("<th>" + examNames.get(i) + "<br>(" + maxMarks.get(i) + ")</th>");
             }
-            out.println("<th>Total</th></tr>");
+
+            out.println("<th>Total</th>");
+            out.println("</tr>");
 
             // ================= TABLE BODY =================
+            boolean found = false;
+            int sno = 1;
+
             while (rsStudents.next()) {
                 found = true;
 
                 int enquiryId = rsStudents.getInt("enquiry_id");
-                String studentName = escapeHtml(rsStudents.getString("student_name"));
-                String remarks = escapeHtml(rsStudents.getString("entrance_remarks"));
+                String appNo = rsStudents.getString("application_no");
+                String studentName = rsStudents.getString("student_name");
+                String remarks = rsStudents.getString("entrance_remarks");
 
                 out.println("<tr>");
-                out.println("<td>" + enquiryId + "</td>");
-                out.println("<td>" + studentName + "</td>");
+                out.println("<td>" + (sno++) + "</td>");
+                out.println("<td><b>" + enquiryId + "</b></td>");
+                out.println("<td><b>" + (appNo == null ? "" : appNo) + "</b></td>");
+                out.println("<td style='text-align:left'>" + (studentName == null ? "" : studentName) + "</td>");
                 out.println("<td><input class='remarksBox' name='remarks_" + enquiryId + "' value='" + (remarks == null ? "" : remarks) + "'></td>");
 
                 int total = 0;
@@ -142,9 +160,7 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
             rsStudents.close();
             psStudents.close();
 
-            if (found) {
-                out.println("<br><button type='submit'>💾 Save Marks</button>");
-            } else {
+            if (!found) {
                 out.println("<p style='color:red;font-weight:bold;'>No students found for selected exam date.</p>");
             }
 
@@ -154,15 +170,5 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
         } finally {
             try { if (con != null) con.close(); } catch (Exception e) {}
         }
-    }
-
-    // ================= HTML ESCAPE =================
-    private String escapeHtml(String s) {
-        if (s == null) return "";
-        return s.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#x27;");
     }
 }
