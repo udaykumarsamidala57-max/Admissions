@@ -246,21 +246,50 @@ tr:hover{ background:#eef2ff; }
 }
 </style>
 <script>
-/* ================= FILTER + DASHBOARD + AGE + EXPORT ================= */
 
-function calculateAges(){
+
+function calculateAges() {
     let cells = document.querySelectorAll(".age-cell");
-    cells.forEach(cell=>{
+
+    // 🎯 Fixed cutoff date: 31 May 2026 (force midnight)
+    let asOnDate = new Date(2026, 4, 31);
+    asOnDate.setHours(0,0,0,0);
+
+    cells.forEach(cell => {
         let dob = cell.dataset.dob;
-        if(!dob) return;
-        let d = new Date(dob);
-        let today = new Date();
-        let age = today.getFullYear() - d.getFullYear();
-        let m = today.getMonth() - d.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < d.getDate())) {
-            age--;
+        if (!dob) return;
+
+        let birth = new Date(dob);
+        birth.setHours(0,0,0,0); // 🔥 Fix timezone shift
+
+        let y = 0, m = 0;
+        let temp = new Date(birth);
+
+        // Count years
+        while (true) {
+            let next = new Date(temp);
+            next.setFullYear(next.getFullYear() + 1);
+            if (next <= asOnDate) {
+                y++;
+                temp = next;
+            } else break;
         }
-        cell.innerText = age;
+
+        // Count months
+        while (true) {
+            let next = new Date(temp);
+            next.setMonth(next.getMonth() + 1);
+            if (next <= asOnDate) {
+                m++;
+                temp = next;
+            } else break;
+        }
+
+        // Remaining days (timezone safe)
+        let diffMs = asOnDate.getTime() - temp.getTime();
+        let d = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+        cell.innerText = y + "Y " + m + "M " + d + "D";
     });
 }
 
@@ -307,37 +336,35 @@ function applyFilters(){
 }
 
 function downloadExcel() {
+    const table = document.getElementById('enquiryTable');
+    let csv = [];
 
-    let table = document.querySelector("table");
-
-    let html = `
-    <html>
-    <head>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        ${table.outerHTML}
-    </body>
-    </html>
-    `;
-
-    let blob = new Blob([html], {
-        type: "application/vnd.ms-excel;charset=utf-8;"
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        let cols = row.querySelectorAll('th, td');
+        let rowData = [];
+        cols.forEach(cell => {
+            let text = cell.innerText.replace(/\n/g, ' ').replace(/"/g, '""').trim();
+            rowData.push('"' + text + '"');
+        });
+        csv.push(rowData.join(','));
     });
 
-    let url = URL.createObjectURL(blob);
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
 
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = "Admission_Enquiry.xls";
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'enquiryTable.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-/* ================= MODAL FUNCTIONS ================= */
+
+
 
 function openEditModal(id){
     document.getElementById("editModal"+id).style.display="flex";
@@ -347,14 +374,13 @@ function closeEditModal(id){
     document.getElementById("editModal"+id).style.display="none";
 }
 
-/* ================= INIT ================= */
+
 window.onload = function(){
     calculateAges();
     applyFilters();
 }
-</script>
-<script>
-/* ================= AJAX ================= */
+
+
 
 function saveEditForm(id){
     let form = document.getElementById("editForm"+id);
@@ -406,11 +432,7 @@ function approveRecord(id){
 }
 </script>
 
-<!-- ===== YOUR EXISTING SCRIPT (FILTER, DASHBOARD, EXPORT, AGE) REMAINS SAME ===== -->
-<script>
-/* PASTE YOUR FULL SCRIPT HERE EXACTLY AS IT IS */
-/* (I am not removing anything from your logic) */
-</script>
+
 
 </head>
 
@@ -442,7 +464,8 @@ function approveRecord(id){
 </div>
 
 <div class="table-wrap">
-<table>
+<table id="enquiryTable">
+
 <tr>
 <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
 <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
@@ -509,7 +532,7 @@ Approve
 </table>
 </div>
 
-<!-- ===== EDIT MODALS ===== -->
+
 <%
 rs.beforeFirst();
 while(rs!=null && rs.next()){
@@ -527,7 +550,7 @@ int id = rs.getInt("enquiry_id");
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="enquiry_id" value="<%=id%>">
 
-<!-- YOUR SAME FORM FIELDS HERE -->
+
 
 <button class="btn" type="submit">Save Changes</button>
 <button class="btn gray" type="button" onclick="closeEditModal(<%=id%>)">Cancel</button>

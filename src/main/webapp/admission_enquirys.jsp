@@ -246,36 +246,41 @@ tr:hover{ background:#eef2ff; }
 }
 </style>
 <script>
-
-
-function calculateAges(){
+function calculateAges() {
     let cells = document.querySelectorAll(".age-cell");
+    let asOnDate = new Date(2026, 4, 31);
+    asOnDate.setHours(0,0,0,0);
 
     cells.forEach(cell => {
         let dob = cell.dataset.dob;
         if (!dob) return;
 
-        let birthDate = new Date(dob);
-        let today = new Date();
+        let birth = new Date(dob);
+        birth.setHours(0,0,0,0);
 
-        let years = today.getFullYear() - birthDate.getFullYear();
-        let months = today.getMonth() - birthDate.getMonth();
-        let days = today.getDate() - birthDate.getDate();
+        let y = 0, m = 0;
+        let temp = new Date(birth);
 
-        // Fix days
-        if (days < 0) {
-            months--;
-            let prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-            days += prevMonth.getDate();
+        while (true) {
+            let next = new Date(temp);
+            next.setFullYear(next.getFullYear() + 1);
+            if (next <= asOnDate) {
+                y++;
+                temp = next;
+            } else break;
         }
 
-        // Fix months
-        if (months < 0) {
-            years--;
-            months += 12;
+        while (true) {
+            let next = new Date(temp);
+            next.setMonth(next.getMonth() + 1);
+            if (next <= asOnDate) {
+                m++;
+                temp = next;
+            } else break;
         }
 
-        cell.innerText = years + "Y " + months + "M " + days + "D";
+        let d = Math.floor((asOnDate - temp) / (1000 * 60 * 60 * 24));
+        cell.innerText = y + "Y " + m + "M " + d + "D";
     });
 }
 
@@ -286,10 +291,7 @@ function applyFilters(){
 
     let rows = document.querySelectorAll(".data-row");
 
-    let total = 0;
-    let visible = 0;
-    let day = 0;
-    let res = 0;
+    let total = 0, visible = 0, day = 0, res = 0;
 
     rows.forEach(row=>{
         total++;
@@ -307,7 +309,6 @@ function applyFilters(){
         if(show){
             row.style.display="";
             visible++;
-
             if(typeCol.includes("day")) day++;
             else res++;
         } else {
@@ -336,21 +337,14 @@ function downloadExcel() {
         csv.push(rowData.join(','));
     });
 
-    const csvString = csv.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'enquiryTable.csv');
-    link.style.visibility = 'hidden';
+    link.href = URL.createObjectURL(blob);
+    link.download = 'enquiryTable.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
-
-
-
 
 function openEditModal(id){
     document.getElementById("editModal"+id).style.display="flex";
@@ -359,14 +353,6 @@ function openEditModal(id){
 function closeEditModal(id){
     document.getElementById("editModal"+id).style.display="none";
 }
-
-
-window.onload = function(){
-    calculateAges();
-    applyFilters();
-}
-
-
 
 function saveEditForm(id){
     let form = document.getElementById("editForm"+id);
@@ -377,7 +363,7 @@ function saveEditForm(id){
     .then(res=>{
         alert("Updated successfully!");
         closeEditModal(id);
-        location.reload(); // reload to refresh values + dashboard
+        location.reload();
     })
     .catch(e=>{
         alert("Update failed!");
@@ -416,7 +402,13 @@ function approveRecord(id){
         console.log(e);
     });
 }
+
+window.onload = function(){
+    calculateAges();
+    applyFilters();
+}
 </script>
+
 
 
 
