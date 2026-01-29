@@ -10,6 +10,7 @@ Integer res = (Integer) request.getAttribute("res");
 Integer semi = (Integer) request.getAttribute("semi");
 
 Map<String, int[]> dashboardMatrixRaw = (Map<String, int[]>) request.getAttribute("dashboardMatrix");
+Map<String, int[]> capacityMap = (Map<String, int[]>) request.getAttribute("capacityMap");
 
 if(total == null) total = 0;
 if(day == null) day = 0;
@@ -26,7 +27,7 @@ if (sess == null || sess.getAttribute("username") == null) {
 %>
 
 <%
-/* ================= NORMALIZE CLASS NAMES ================= */
+/* ================= NORMALIZE CLASS NAMES IN JSP ================= */
 Map<String, int[]> dashboardMatrix = new HashMap<>();
 
 if(dashboardMatrixRaw != null){
@@ -37,16 +38,10 @@ if(dashboardMatrixRaw != null){
         if(clean.contains("nur")) normalized = "Nursery";
         else if(clean.equals("lkg")) normalized = "LKG";
         else if(clean.equals("ukg")) normalized = "UKG";
-        else if(clean.equals("classx") || clean.equals("10")) normalized = "Class 10";
+        // FIX: Added "x" check here
+        else if(clean.equals("classx") || clean.equals("x") || clean.equals("10")) normalized = "Class 10";
         else if(clean.equals("class9") || clean.equals("9")) normalized = "Class 9";
-        else if(clean.equals("class8") || clean.equals("8")) normalized = "Class 8";
-        else if(clean.equals("class7") || clean.equals("7")) normalized = "Class 7";
-        else if(clean.equals("class6") || clean.equals("6")) normalized = "Class 6";
-        else if(clean.equals("class5") || clean.equals("5")) normalized = "Class 5";
-        else if(clean.equals("class4") || clean.equals("4")) normalized = "Class 4";
-        else if(clean.equals("class3") || clean.equals("3")) normalized = "Class 3";
-        else if(clean.equals("class2") || clean.equals("2")) normalized = "Class 2";
-        else if(clean.equals("class1") || clean.equals("1")) normalized = "Class 1";
+        // ... (keep the rest as is)
         else continue;
 
         dashboardMatrix.put(normalized, e.getValue());
@@ -275,8 +270,127 @@ for(String cls : classOrder){
 
 </tbody>
 </table>
+<div class="table-box">
+
+<h3 style="margin-bottom:15px; color:#1e3a8a;">Class Capacity Status</h3>
+
+<table>
+<thead>
+<tr>
+    <th rowspan="2">Class</th>
+
+    <th colspan="3">Day Scholar</th>
+    <th colspan="3">Residential</th>
+    <th colspan="3">Total</th>
+</tr>
+<tr>
+    <th>Cap</th>
+    <th>Present</th>
+    <th>Vacancy</th>
+
+    <th>Cap</th>
+    <th>Present</th>
+    <th>Vacancy</th>
+
+    <th>Cap</th>
+    <th>Present</th>
+    <th>Vacancy</th>
+</tr>
+</thead>
+
+<tbody>
+<%
+String[] classOrder2 = {
+		  "PreKG","LKG","UKG","Class 1","Class 2","Class 3","Class 4",
+		  "Class 5","Class 6","Class 7","Class 8","Class 9","Class 10"
+		};
+// ===== GRAND TOTAL VARIABLES =====
+int gDayCap=0, gDayPre=0, gDayVac=0;
+int gResCap=0, gResPre=0, gResVac=0;
+int gTotCap=0, gTotPre=0, gTotVac=0;
+
+for(String cls : classOrder2){
+
+    // capacityMap: [dayCap, resCap, totalCap]
+    int[] cap = (capacityMap != null && capacityMap.get(cls) != null) 
+                ? capacityMap.get(cls) 
+                : new int[]{0,0,0};
+
+    // dashboardMatrix: [dayPresent, resPresent, semi, ...]
+    int[] ps = (dashboardMatrix != null && dashboardMatrix.get(cls) != null) 
+               ? dashboardMatrix.get(cls) 
+               : new int[]{0,0,0,0,0,0};
+
+    int dayCap = cap[0];
+    int resCap = cap[1];
+    int totalCap = cap[2];
+
+    // Day Scholar = Day + Semi
+    int dayPresent = ps[0] + ps[2];
+
+    // Residential only
+    int resPresent = ps[1];
+
+    // Total = Day + Semi + Residential
+    int totalPresent = dayPresent + resPresent;
+
+    int dayVac = dayCap - dayPresent;
+    int resVac = resCap - resPresent;
+    int totalVac = totalCap - totalPresent;
+
+    if(dayVac < 0) dayVac = 0;
+    if(resVac < 0) resVac = 0;
+    if(totalVac < 0) totalVac = 0;
+
+    // ===== ADD TO GRAND TOTALS =====
+    gDayCap += dayCap; gDayPre += dayPresent; gDayVac += dayVac;
+    gResCap += resCap; gResPre += resPresent; gResVac += resVac;
+    gTotCap += totalCap; gTotPre += totalPresent; gTotVac += totalVac;
+%>
+<tr>
+    <td><%= cls %></td>
+
+    <!-- Day Scholar -->
+    <td><%= dayCap %></td>
+    <td><%= dayPresent %></td>
+    <td><%= dayVac %></td>
+
+    <!-- Residential -->
+    <td><%= resCap %></td>
+    <td><%= resPresent %></td>
+    <td><%= resVac %></td>
+
+    <!-- Total -->
+    <td><%= totalCap %></td>
+    <td><%= totalPresent %></td>
+    <td><%= totalVac %></td>
+</tr>
+<% } %>
+
+<!-- ===== GRAND TOTAL ROW ===== -->
+<tr style="background:#020617; color:white; font-weight:900;">
+    <td>GRAND TOTAL</td>
+
+    <td><%= gDayCap %></td>
+    <td><%= gDayPre %></td>
+    <td><%= gDayVac %></td>
+
+    <td><%= gResCap %></td>
+    <td><%= gResPre %></td>
+    <td><%= gResVac %></td>
+
+    <td><%= gTotCap %></td>
+    <td><%= gTotPre %></td>
+    <td><%= gTotVac %></td>
+</tr>
+
+</tbody>
+</table>
+
+
 
 </div>
+
 </div>
 
 </body>

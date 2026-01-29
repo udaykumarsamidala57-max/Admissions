@@ -356,19 +356,26 @@ function closeEditModal(id){
 
 function saveEditForm(id){
     let form = document.getElementById("editForm"+id);
-    let data = new FormData(form);
+    let formData = new FormData(form);
+    
+    // Convert to URL-encoded format
+    let params = new URLSearchParams(formData);
 
-    fetch("admission", { method:"POST", body:data })
-    .then(r=>r.text())
-    .then(res=>{
-        alert("Updated successfully!");
-        closeEditModal(id);
-        location.reload();
+    fetch("admission", { 
+        method: "POST", 
+        body: params, 
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
-    .catch(e=>{
-        alert("Update failed!");
-        console.log(e);
-    });
+    .then(r => r.text())
+    .then(res => {
+        if(res.trim() === "OK") {
+            alert("Updated successfully!");
+            location.reload();
+        } else {
+            alert("Error: " + res);
+        }
+    })
+    .catch(e => console.error("Error:", e));
     return false;
 }
 
