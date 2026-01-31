@@ -6,14 +6,14 @@
 <!DOCTYPE html>
 
 <%
-    HttpSession sess = request.getSession(false);
-    if (sess == null || sess.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
+   HttpSession sess = request.getSession(false);
+   if (sess == null || sess.getAttribute("username") == null) {
+      response.sendRedirect("login.jsp");
+       return;
+   }
 
-    String role = (String) sess.getAttribute("role");
-    String User = (String) sess.getAttribute("username");
+   String role = (String) sess.getAttribute("role");
+   String User = (String) sess.getAttribute("username");
 %>
 
 <html>
