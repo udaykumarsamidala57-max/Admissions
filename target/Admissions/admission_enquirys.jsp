@@ -409,11 +409,20 @@ function approveRecord(id){
         console.log(e);
     });
 }
+function printHallTicket(appNo, id){
+    if(appNo && appNo.trim() !== ""){
+        window.open("HallTicket.jsp?application_no=" + encodeURIComponent(appNo), "_blank");
+    } else {
+        window.open("HallTicket.jsp?enquiry_id=" + id, "_blank");
+    }
+}
+
 
 window.onload = function(){
     calculateAges();
     applyFilters();
 }
+
 </script>
 
 
@@ -465,7 +474,7 @@ while(rs!=null && rs.next()){
 %>
 
 <tr class="data-row" id="row<%=id%>">
-<td><%="E26-"+id%></td>
+<td><%=id%></td>
 <td><%=rs.getString("student_name")%></td>
 <td><%=rs.getString("gender")%></td>
 <td><%=rs.getString("date_of_birth")%></td>
@@ -494,6 +503,12 @@ while(rs!=null && rs.next()){
 
 <td>
 <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
+
+<button class="btn gray"
+onclick="printHallTicket('<%=rs.getString("application_no")%>', <%=id%>)">
+Print
+</button>
+
 <% if("Global".equalsIgnoreCase(role)){ %>
 <button class="btn red" onclick="deleteRecord(<%=id%>)">Delete</button>
 <% } %>
