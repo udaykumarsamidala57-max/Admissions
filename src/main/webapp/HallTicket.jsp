@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, bean.DBUtil" %>
+<%@ page import="java.sql.*, bean.DBUtil, java.text.SimpleDateFormat" %>
 
 <%
     String enquiryId = request.getParameter("enquiry_id");
@@ -8,6 +8,9 @@
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
+    
+    // Formatter for the specific date style requested
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
 %>
 
 <!DOCTYPE html>
@@ -64,12 +67,11 @@
 try {
     con = DBUtil.getConnection();
 
-    // Use a clean OR query. It will find the record if EITHER matches.
+    // Clean OR query to find record by either ID or App No
     String sql = "SELECT * FROM admission_enquiry WHERE enquiry_id = ? OR (application_no = ? AND application_no != '') LIMIT 1";
     
     ps = con.prepareStatement(sql);
 
-    // Parse Enquiry ID safely
     int idValue = 0;
     try {
         if (enquiryId != null) idValue = Integer.parseInt(enquiryId.replaceAll("[^0-9]", ""));
@@ -81,9 +83,12 @@ try {
     rs = ps.executeQuery();
 
     if (rs.next()) {
-        // Fetch values and handle nulls for application_no
         String appNo = rs.getString("application_no");
         if (appNo == null) appNo = ""; 
+
+        // Format Date of Birth
+        Date dobDate = rs.getDate("date_of_birth");
+        String formattedDOB = (dobDate != null) ? sdf.format(dobDate).toUpperCase() : "";
 %>
 
 <div class="hall-ticket">
@@ -111,7 +116,7 @@ try {
         </tr>
         <tr>
             <td class="label">Date of Birth</td>
-            <td><%= rs.getDate("date_of_birth") %></td>
+            <td><%= formattedDOB %></td> 
         </tr>
         <tr>
             <td class="label">Class of Admission</td>
