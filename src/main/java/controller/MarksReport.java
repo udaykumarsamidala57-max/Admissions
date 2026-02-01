@@ -76,7 +76,7 @@ public class MarksReport extends HttpServlet {
             out.println("<table class='marksTable'>");
             out.println("<thead>");
             out.println("<tr>");
-            out.println("<th>S.No</th><th>Enquiry ID</th><th>App No</th><th>Student Name</th><th>Type</th>");
+            out.println("<th>S.No</th><th>Enquiry ID</th><th>App No</th><th>Student Name</th><th>Type</th><th>Segment</th>");
             // Father's Separate Columns
             out.println("<th>Father Name</th><th>Father Occupation</th><th>Father Organization</th><th>Father Mobile</th>");
             // Mother's Separate Columns
@@ -95,7 +95,7 @@ public class MarksReport extends HttpServlet {
             // 4. LOAD STUDENTS AND POPULATE ROWS
             String studentQuery = "SELECT ae.enquiry_id, IFNULL(ae.application_no, '') AS application_no, " +
                                  "COALESCE(ae.student_name, ae.entrance_remarks) AS student_name, " +
-                                 "ae.entrance_remarks, ae.admission_type, ae.father_name, ae.father_occupation, ae.father_organization, " +
+                                 "ae.entrance_remarks, ae.admission_type, ae.father_name, ae.father_occupation, ae.father_organization,ae.segment, " +
                                  "ae.father_mobile_no, ae.mother_name, ae.mother_occupation, ae.mother_organization, ae.mother_mobile_no, ae.place_from " +
                                  "FROM admission_enquiry ae " +
                                  "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
@@ -121,6 +121,7 @@ public class MarksReport extends HttpServlet {
                         out.println("<td>" + rsStudents.getString("application_no") + "</td>");
                         out.println("<td style='text-align:left'><b>" + rsStudents.getString("student_name") + "</b></td>");
                         out.println("<td>" + rsStudents.getString("admission_type") + "</td>");
+                        out.println("<td>" + rsStudents.getString("segment") + "</td>");
                         
                         // Father Columns
                         out.println("<td>" + rsStudents.getString("father_name") + "</td>");
