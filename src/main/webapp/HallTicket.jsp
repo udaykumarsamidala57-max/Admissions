@@ -89,7 +89,7 @@ try {
 <div class="hall-ticket">
     <div class="header-section">
         <h2>SANDUR RESIDENTIAL SCHOOL</h2>
-        <h4>EXAM – HALL TICKET(26-27)</h4>
+        <h4>EXAM – HALL TICKET(2026-27)</h4>
     </div>
 
     <table>
