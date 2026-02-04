@@ -9,7 +9,7 @@
     PreparedStatement ps = null;
     ResultSet rs = null;
     
-    // Formatter for the specific date style requested
+   
     SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
 %>
 
@@ -67,7 +67,7 @@
 try {
     con = DBUtil.getConnection();
 
-    // Clean OR query to find record by either ID or App No
+   
     String sql = "SELECT * FROM admission_enquiry WHERE enquiry_id = ? OR (application_no = ? AND application_no != '') LIMIT 1";
     
     ps = con.prepareStatement(sql);
@@ -86,7 +86,7 @@ try {
         String appNo = rs.getString("application_no");
         if (appNo == null) appNo = ""; 
 
-        // Format Date of Birth
+       
         Date dobDate = rs.getDate("date_of_birth");
         String formattedDOB = (dobDate != null) ? sdf.format(dobDate).toUpperCase() : "";
 %>

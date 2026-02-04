@@ -23,7 +23,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ================= ROOT ================= */
+
 *{
     box-sizing: border-box;
     font-family: Inter, Segoe UI, Arial, sans-serif;
@@ -38,7 +38,7 @@ body{
         linear-gradient(135deg,#eef2ff,#f8fafc);
 }
 
-/* ================= SUMMARY CARDS ================= */
+
 .summary-bar{
     display: flex;
     gap: 14px;
@@ -78,7 +78,7 @@ body{
 .sum-visible{ background: linear-gradient(135deg,#0ea5e9,#0369a1); }
 .sum-day{ background: linear-gradient(135deg,#22c55e,#15803d); }
 
-/* ================= BUTTONS ================= */
+
 .btn{
     border: none;
     padding: 10px 18px;
@@ -98,7 +98,7 @@ body{
 .btn.blue{ background: linear-gradient(135deg,#2563eb,#1e40af); }
 .btn.gray{ background: linear-gradient(135deg,#64748b,#475569); }
 
-/* ================= FILTER BAR ================= */
+
 .filters{
     margin: 14px;
     padding: 14px 16px;
@@ -126,7 +126,7 @@ body{
     box-shadow: 0 0 6px rgba(67,56,202,0.4);
 }
 
-/* ================= TABLE (UNIVERSITY STYLE) ================= */
+
 .table-wrap{
     padding: 14px;
     overflow-x: auto;
@@ -139,7 +139,7 @@ table{
     font-size: 14px;
 }
 
-/* Header */
+
 table thead th{
     background: #0f2a4d;
     color: #ffffff;
@@ -150,7 +150,7 @@ table thead th{
     white-space: nowrap;
 }
 
-/* Body */
+
 table tbody td{
     padding: 8px 10px;
     border: 1px solid #000000;
@@ -158,35 +158,35 @@ table tbody td{
     vertical-align: middle;
 }
 
-/* Center Sl No */
+
 table tbody td:first-child{
     text-align: center;
     width: 60px;
 }
 
-/* Highlight codes */
+
 table tbody td:nth-child(2),
 table tbody td:nth-child(5){
     font-weight: 600;
 }
 
-/* Hover */
+
 table tbody tr:hover{
     background: #f1f5f9;
 }
 
-/* Remove card effects */
+
 table, th, td{
     border-radius: 0 !important;
     box-shadow: none !important;
 }
 
-/* Responsive */
+
 @media(max-width: 768px){
     table{ font-size: 13px; }
 }
 
-/* ================= BADGES ================= */
+
 .badge-day{
     background: #dcfce7;
     color: #166534;
@@ -203,7 +203,7 @@ table, th, td{
     font-weight: 700;
 }
 
-/* ================= MODAL ================= */
+
 .modal-overlay{
     position: fixed;
     inset: 0;
@@ -245,7 +245,7 @@ table, th, td{
     cursor: pointer;
 }
 
-/* ================= FORMS ================= */
+
 .form-grid{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -278,7 +278,7 @@ table, th, td{
     box-shadow: 0 0 6px rgba(67,56,202,0.4);
 }
 
-/* Responsive forms */
+
 @media(max-width: 900px){
     .form-grid{ grid-template-columns: 1fr 1fr; }
 }
@@ -289,7 +289,7 @@ table, th, td{
 </style>
 
 <script>
-// Logic to calculate exact age as on 31st May 2026
+
 function calculateAges() {
     let cells = document.querySelectorAll(".age-cell");
     let asOnDate = new Date(2026, 4, 31);
@@ -368,9 +368,9 @@ function downloadExcel() {
     document.body.removeChild(link);
 }
 
-// Hall Ticket Printer: Sends both Enquiry ID and Application No
+
 function printHallTicket(appNo, id){
-    // Clean strings and handle nulls
+  
     let safeAppNo = (appNo && appNo !== "null") ? appNo.trim() : "";
     let url = "HallTicket.jsp?enquiry_id=" + id + "&application_no=" + encodeURIComponent(safeAppNo);
     window.open(url, "_blank");

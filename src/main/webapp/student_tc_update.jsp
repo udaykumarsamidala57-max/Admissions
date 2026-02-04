@@ -21,7 +21,7 @@ body{
 
 .app{ display:flex; flex-direction:column; height:100vh; }
 
-/* ===== HEADER ===== */
+
 .toolbar{
     position:sticky; top:0; z-index:1000;
     background: linear-gradient(135deg,#1e3a8a,#4338ca);
@@ -43,7 +43,7 @@ body{
 .btn.red{ background:linear-gradient(135deg,#ef4444,#dc2626); }
 .btn.green{ background:linear-gradient(135deg,#22c55e,#16a34a); }
 
-/* ===== FILTER BAR ===== */
+
 .filters{
     margin:12px;
     padding:12px;
@@ -59,7 +59,7 @@ body{
     font-size:14px;
 }
 
-/* ===== TABLE ===== */
+
 .table-wrap{ flex:1; overflow:auto; padding:0 12px 12px 12px; }
 
 table{
@@ -93,13 +93,13 @@ th,td{
 tr:nth-child(even){ background:#f8fafc; }
 tr:hover{ background:#eef2ff; }
 
-/* Status badges */
+
 .badge-tc{
     background:#fee2e2; color:#7f1d1d;
     padding:5px 12px; border-radius:20px; font-weight:700;
 }
 
-/* Dropdown */
+
 select{
     padding:6px 10px;
     border-radius:8px;
@@ -148,7 +148,7 @@ function updateTCStatus(sno, newStatus) {
     xhr.send("sno=" + encodeURIComponent(sno) + "&tcstatus=" + encodeURIComponent(newStatus));
 }
 
-/* ===== FILTER + SEARCH ===== */
+
 function applyFilters(){
     let search = document.getElementById("searchBox").value.toLowerCase();
     let cls = document.getElementById("classFilter").value.toLowerCase();
@@ -168,7 +168,7 @@ function applyFilters(){
     });
 }
 
-/* ===== EXCEL DOWNLOAD ===== */
+
 function downloadExcel(){
     let table = document.getElementById("studentTable");
     let rows = table.querySelectorAll("tr");
@@ -207,7 +207,7 @@ function downloadExcel(){
 
 <jsp:include page="common_header.jsp" />
 
-<!-- ===== FILTER BAR ===== -->
+
 <div class="filters">
     <input type="text" id="searchBox" placeholder="🔍 Search Name / Admission / Mobile..." onkeyup="applyFilters()">
 
@@ -233,11 +233,11 @@ function downloadExcel(){
         %>
     </select>
 
-    <!-- ✅ EXPORT BUTTON -->
+  
     <button class="btn green" onclick="downloadExcel()">⬇ Export Excel</button>
 </div>
 
-<!-- ===== TABLE ===== -->
+
 <div class="table-wrap">
 <table id="studentTable">
 <thead>

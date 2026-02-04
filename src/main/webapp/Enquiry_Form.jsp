@@ -80,7 +80,7 @@
     </div>
 </div>
 
-<!-- Father Details -->
+
 <div class="section-card">
     <div class="section-title">Father Details</div>
     <div class="form-grid">
@@ -109,7 +109,7 @@
     </div>
 </div>
 
-<!-- Mother Details -->
+
 <div class="section-card">
     <div class="section-title">Mother Details</div>
     <div class="form-grid">
@@ -137,7 +137,7 @@
     </div>
 </div>
 
-<!-- Other Details -->
+
 <div class="section-card">
     <div class="section-title">Other Details</div>
     <div class="form-grid">
@@ -172,7 +172,7 @@
 <script>
 let mobileExists = false;
 
-// ✅ Age calculation
+
 function calculateAge() {
     let dobValue = document.getElementById("dob").value;
     if (!dobValue) {
@@ -201,7 +201,7 @@ function calculateAge() {
     document.getElementById("age").value = years + " Years " + months + " Months " + days + " Days";
 }
 
-// ✅ AJAX Mobile Check (for BOTH fields)
+
 function checkMobile(mobile) {
 
     if (mobile.length != 10) {
@@ -237,14 +237,14 @@ function checkMobile(mobile) {
     xhr.send();
 }
 
-// ✅ Reset button if number changes
+
 function resetSubmit() {
     document.getElementById("submitBox").style.display = "block";
     document.getElementById("mobileMsg").innerHTML = "";
     mobileExists = false;
 }
 
-// ✅ Final submit safety
+
 function validateBeforeSubmit() {
     if (mobileExists) {
         alert("This mobile number already exists!");

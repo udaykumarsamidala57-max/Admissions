@@ -45,18 +45,18 @@ select, input[type="date"] {
 
 .table-wrapper { overflow-x: auto; border-radius: 10px; margin-top: 10px; }
 
-/* Table Styles */
+
 .marksTable { width: 100%; border-collapse: collapse; min-width: 900px; }
 .marksTable th { background: #0f2a4d; color: white; padding: 12px; font-weight: 500; }
 .marksTable td { padding: 8px; border-bottom: 1px solid #e5e9f2; text-align: center; }
 
-/* Input Styles */
+
 .markInput { width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccd6e0; text-align: center; }
 .markInput.changed, .remarksBox.changed { background: #fff3cd !important; border-color: #f39c12; }
 .totalBox, .percentBox { width: 85px; font-weight: 600; background: #ecf0f1; border: none; text-align: center; }
 .remarksBox { width: 200px; border-radius: 6px; border: 1px solid #ccd6e0; padding: 5px; }
 
-/* Buttons */
+
 .btn-group { margin-top: 20px; display: flex; gap: 10px; }
 .save-btn {
     padding: 10px 25px; border-radius: 8px; border: none;
@@ -68,7 +68,7 @@ select, input[type="date"] {
 </style>
 
 <script>
-/* ================= EXCEL EXPORT LOGIC ================= */
+
 function exportToExcel() {
     const table = document.querySelector("#dataArea table");
     if (!table) {
@@ -76,7 +76,7 @@ function exportToExcel() {
         return;
     }
 
-    // 1. Create a virtual copy of the table to clean data
+    
     const ws_data = [];
     const rows = table.querySelectorAll("tr");
 
@@ -84,7 +84,7 @@ function exportToExcel() {
         const rowData = [];
         const cells = row.querySelectorAll("th, td");
         cells.forEach((cell) => {
-            // If cell has an input, get the value; otherwise get text
+           
             const input = cell.querySelector("input");
             if (input) {
                 rowData.push(input.value);
@@ -95,23 +95,23 @@ function exportToExcel() {
         ws_data.push(rowData);
     });
 
-    // 2. Build the Workbook
+  
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-    // 3. Simple Formatting: Set column widths
+   
     const wscols = ws_data[0].map(() => ({ wch: 15 }));
     ws['!cols'] = wscols;
 
     XLSX.utils.book_append_sheet(wb, ws, "Marks_Report");
 
-    // 4. Filename generation
+   
     const className = document.getElementById("class_id").options[document.getElementById("class_id").selectedIndex].text;
     const date = document.getElementById("exam_date").value;
     XLSX.writeFile(wb, `Marks_${className}_${date}.xlsx`);
 }
 
-/* ================= EXISTING LOGIC ================= */
+
 function fixTable() {
     var table = document.querySelector("#dataArea table");
     if (!table) return;
@@ -171,7 +171,7 @@ function calculateRow(input) {
     var headers = document.querySelector("#dataArea table thead tr").cells;
     markInputs.forEach((inp, idx) => {
         total += parseFloat(inp.value) || 0;
-        // Logic to find max marks from header: "Maths (100)"
+        
         var headerText = Array.from(headers).find(h => h.cellIndex === inp.parentElement.cellIndex).innerText;
         var match = headerText.match(/\((\d+)\)/);
         if(match) maxTotal += parseFloat(match[1]);

@@ -15,7 +15,7 @@
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // ---------- FORM SUBMISSION ----------
+    
     if (request.getParameter("submit") != null) {
 
         int classId = Integer.parseInt(request.getParameter("class_id"));

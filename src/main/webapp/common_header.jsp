@@ -14,7 +14,7 @@
 %>
 
 <style>
-/* ================= PROFESSIONAL HEADER ================= */
+
 .ams-header {
     box-sizing: border-box;
     font-family: 'Inter', "Segoe UI", Roboto, sans-serif;
@@ -31,16 +31,16 @@
     justify-content: space-between;
 }
 
-/* ===== BRAND SECTION ===== */
+
 .ams-header .brand-box {
     display: flex;
     flex-direction: column;
-    border-left: 4px solid #fbbf24; /* Gold highlight bar */
+    border-left: 4px solid #fbbf24; 
     padding-left: 15px;
 }
 
 .ams-header .school-name {
-    color: #fbbf24; /* Gold/Yellow highlight */
+    color: #fbbf24; 
     font-size: 1.2rem;
     font-weight: 800;
     letter-spacing: 0.5px;
@@ -56,7 +56,7 @@
     opacity: 0.9;
 }
 
-/* ===== NAVIGATION ===== */
+
 .ams-header nav ul {
     list-style: none;
     display: flex;
@@ -80,7 +80,7 @@
     color: #38bdf8;
 }
 
-/* ===== USER PROFILE ===== */
+
 .ams-header .user-info {
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@
     color: #ef4444;
 }
 
-/* ===== RESPONSIVE ===== */
+
 @media(max-width: 1024px) {
     .ams-header .nav-container {
         flex-direction: column;

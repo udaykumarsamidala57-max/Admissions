@@ -12,7 +12,7 @@
     try {
         con = DBUtil.getConnection();
 
-        /* ================= EXCEL DOWNLOAD ================= */
+      
         if ("download".equals(action)) {
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("Content-Disposition",
@@ -37,7 +37,7 @@
             return;
         }
 
-        /* ================= INSERT ================= */
+       
         if ("add".equals(action)) {
             ps = con.prepareStatement(
                 "INSERT INTO class_capacity " +
@@ -56,7 +56,7 @@
             ps.executeUpdate();
         }
 
-        /* ================= UPDATE ================= */
+       
         if ("update".equals(action)) {
             ps = con.prepareStatement(
                 "UPDATE class_capacity SET " +
@@ -144,7 +144,7 @@ td:last-child {
 <jsp:include page="common_header.jsp" />
 <h1 align="center">Class Capacity</h1>
 
-<!-- ================= ADD FORM ================= -->
+
 <form method="post">
 <input type="hidden" name="action" value="add">
 <table>
@@ -167,13 +167,13 @@ td:last-child {
 </table>
 </form>
 
-<!-- ================= DOWNLOAD ================= -->
+
 <form method="post" style="text-align:center;">
     <input type="hidden" name="action" value="download">
     <button class="btn edit">Download Excel</button>
 </form>
 
-<!-- ================= DATA TABLE ================= -->
+
 <table>
 <tr>
     <th>ID</th>

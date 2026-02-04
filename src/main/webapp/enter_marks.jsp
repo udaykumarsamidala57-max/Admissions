@@ -27,7 +27,7 @@ body {
     background: linear-gradient(to right, #eef2f7, #f8fafc);
 }
 
-/* ================= CARD CONTAINER ================= */
+
 .container {
     max-width: 1800px;
     margin: 25px auto;
@@ -44,7 +44,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* ================= FILTER BAR ================= */
+
 .filter-bar {
     display: flex;
     gap: 20px;
@@ -71,7 +71,7 @@ select:focus, input:focus {
     border-color: #3498db;
 }
 
-/* ================= TABLE AREA ================= */
+
 .table-wrapper {
     overflow-x: auto;
     border-radius: 10px;
@@ -104,7 +104,7 @@ select:focus, input:focus {
     background: #f9fbff;
 }
 
-/* ================= INPUT STYLES ================= */
+
 .markInput {
     width: 60px;
     padding: 5px;
@@ -134,7 +134,7 @@ select:focus, input:focus {
     padding: 5px;
 }
 
-/* ================= BUTTON ================= */
+
 .save-btn {
     margin-top: 18px;
     padding: 10px 28px;
@@ -153,14 +153,14 @@ select:focus, input:focus {
     box-shadow: 0 5px 15px rgba(52,152,219,0.3);
 }
 
-/* Responsive */
+
 @media(max-width: 768px){
     .filter-bar { flex-direction: column; align-items: flex-start; }
 }
 </style>
 
 <script>
-/* ================= FIX TABLE STRUCTURE ================= */
+
 function fixTable() {
     var table = document.querySelector("#dataArea table");
     if (!table) return;
@@ -208,7 +208,7 @@ function fixTable() {
     }
 }
 
-/* ================= LOAD TABLE ================= */
+
 function loadStudentsAndExams() {
     var classId = document.getElementById("class_id").value;
     var examDate = document.getElementById("exam_date").value;
@@ -232,10 +232,10 @@ function loadStudentsAndExams() {
     xhr.send();
 }
 
-/* ================= TRACK CHANGES ================= */
+
 function hookChangeTracking() {
 
-    // Track MARKS
+   
     var inputs = document.getElementsByClassName("markInput");
     for (var i = 0; i < inputs.length; i++) {
         inputs[i].setAttribute("data-old", inputs[i].value);
@@ -249,7 +249,7 @@ function hookChangeTracking() {
         });
     }
 
-    // Track REMARKS
+   
     var remarks = document.getElementsByClassName("remarksBox");
     for (var i = 0; i < remarks.length; i++) {
         remarks[i].setAttribute("data-old", remarks[i].value);
@@ -263,7 +263,7 @@ function hookChangeTracking() {
     }
 }
 
-/* ================= PREVENT EMPTY SAVE ================= */
+/
 function beforeSubmit() {
     var changed = document.getElementsByClassName("changed");
     if (changed.length === 0) {
@@ -273,7 +273,7 @@ function beforeSubmit() {
     return true;
 }
 
-/* ================= AUTO TOTAL + PERCENT ================= */
+
 function calculateRow(anyInputInRow) {
     var row = anyInputInRow.closest("tr");
     var table = document.querySelector("#dataArea table");
@@ -317,7 +317,7 @@ function calculateRow(anyInputInRow) {
     }
 }
 
-/* ================= RECALCULATE ALL ================= */
+
 function calculateAllRows() {
     var rows = document.querySelectorAll("#dataArea table tbody tr");
     for (var i = 0; i < rows.length; i++) {
