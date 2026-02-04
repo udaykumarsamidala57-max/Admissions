@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, bean.DBUtil" %>
+<%@ page import="java.sql.*, bean.DBUtil, java.text.SimpleDateFormat" %>
 
 <%
     String enquiryId = request.getParameter("enquiry_id");
@@ -8,140 +8,99 @@
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
+    
+    // Formatter for the specific date style requested
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Hall Ticket</title>
+    <meta charset="UTF-8">
+    <title>Hall Ticket</title>
+    <style>
+        /* A5 Landscape Setup */
+        @page { size: A5 landscape; margin: 6mm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+        
+        .hall-ticket { 
+            width: 100%; 
+            background: #fff; 
+            border: 2px solid #000; 
+            padding: 10mm; 
+            box-sizing: border-box; 
+            margin: auto;
+        }
 
-<style>
-    /* ===== A5 LANDSCAPE PRINT SETUP ===== */
-    @page {
-        size: A5 landscape;
-        margin: 6mm;
-    }
+        .header-section { 
+            text-align: center; 
+            border-bottom: 2px solid #000; 
+            padding-bottom: 5px; 
+            margin-bottom: 10px; 
+        }
 
-    body {
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }
+        h2 { margin: 0; font-size: 18px; }
+        h4 { margin: 2px 0; font-size: 12px; font-weight: normal; }
 
-    .hall-ticket {
-        width: 100%;
-        min-height: 100%;
-        background: #fff;
-        border: 2px solid #000;
-        padding: 12mm;
-        box-sizing: border-box;
-    }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        td { padding: 6px 10px; border: 1px solid #000; font-size: 13px; }
+        
+        .label { 
+            font-weight: bold; 
+            width: 30%; 
+            background: #f2f2f2; 
+        }
 
-    .header-section {
-        text-align: center;
-        border-bottom: 2px solid #000;
-        padding-bottom: 6px;
-        margin-bottom: 10px;
-    }
+        .print-btn-container { text-align: center; margin-top: 15px; }
+        .btn { padding: 8px 20px; cursor: pointer; background: #000; color: #fff; border: none; }
 
-    h2 {
-        margin: 0;
-        font-size: 20px;
-        letter-spacing: 1px;
-    }
-
-    h4 {
-        margin: 4px 0 0;
-        font-size: 13px;
-        font-weight: normal;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-        margin-top: 8px;
-    }
-
-    td {
-        padding: 8px;
-        border: 1px solid #000;
-        vertical-align: middle;
-    }
-
-    .label {
-        font-weight: bold;
-        width: 35%;
-        background: #f2f2f2;
-    }
-
-    .print-btn-container {
-        text-align: center;
-        margin-top: 12px;
-    }
-
-    .btn {
-        padding: 7px 18px;
-        font-size: 13px;
-        background: #000;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-    }
-
-    @media print {
-        body { background: #fff; }
-        .print-btn-container { display: none; }
-    }
-</style>
+        @media print {
+            body { background: #fff; }
+            .print-btn-container { display: none; }
+            .hall-ticket { border: 2px solid #000; }
+        }
+    </style>
 </head>
-
 <body>
 
 <%
 try {
     con = DBUtil.getConnection();
 
-    // Logic: If Enquiry ID is provided, use it. If not, fallback to Application No.
-    String sql = "SELECT * FROM admission_enquiry WHERE enquiry_id = ? OR (application_no = ? AND application_no IS NOT NULL AND application_no != '')";
-
+    // Clean OR query to find record by either ID or App No
+    String sql = "SELECT * FROM admission_enquiry WHERE enquiry_id = ? OR (application_no = ? AND application_no != '') LIMIT 1";
+    
     ps = con.prepareStatement(sql);
 
-    // Sanitize and set Enquiry ID
-    if (enquiryId != null && !enquiryId.trim().isEmpty()) {
-        ps.setInt(1, Integer.parseInt(enquiryId.replaceAll("[^0-9]", "")));
-    } else {
-        ps.setNull(1, Types.INTEGER);
-    }
+    int idValue = 0;
+    try {
+        if (enquiryId != null) idValue = Integer.parseInt(enquiryId.replaceAll("[^0-9]", ""));
+    } catch (NumberFormatException e) { idValue = -1; }
 
-    // Set Application No
-    if (applicationNo != null && !applicationNo.trim().isEmpty()) {
-        ps.setString(2, applicationNo);
-    } else {
-        ps.setNull(2, Types.VARCHAR);
-    }
+    ps.setInt(1, idValue);
+    ps.setString(2, (applicationNo != null) ? applicationNo.trim() : "");
 
     rs = ps.executeQuery();
 
     if (rs.next()) {
-        // Handle empty application number display logic
-        String displayAppNo = rs.getString("application_no");
-        if (displayAppNo == null) displayAppNo = ""; 
+        String appNo = rs.getString("application_no");
+        if (appNo == null) appNo = ""; 
+
+        // Format Date of Birth
+        Date dobDate = rs.getDate("date_of_birth");
+        String formattedDOB = (dobDate != null) ? sdf.format(dobDate).toUpperCase() : "";
 %>
 
 <div class="hall-ticket">
-
     <div class="header-section">
         <h2>SANDUR RESIDENTIAL SCHOOL</h2>
-        <h4>ADMISSION ENTRANCE EXAM – HALL TICKET</h4>
+        <h4>EXAM – HALL TICKET(2026-27)</h4>
     </div>
 
     <table>
         <tr>
             <td class="label">Application No</td>
-            <td><%= displayAppNo %></td>
+            <td><%= appNo %></td> 
         </tr>
         <tr>
             <td class="label">Enquiry ID</td>
@@ -157,7 +116,7 @@ try {
         </tr>
         <tr>
             <td class="label">Date of Birth</td>
-            <td><%= rs.getDate("date_of_birth") %></td>
+            <td><%= formattedDOB %></td> 
         </tr>
         <tr>
             <td class="label">Class of Admission</td>
@@ -174,21 +133,21 @@ try {
     </table>
 
     <div class="print-btn-container">
-        <button class="btn" onclick="window.print()">🖨 Print</button>
+        <button class="btn" onclick="window.print()">🖨 Print Hall Ticket</button>
     </div>
-
 </div>
 
 <%
     } else {
 %>
-    <p style="text-align:center;color:red;font-weight:bold;margin-top:50px;">
-        No record found. Please check your Enquiry ID.
-    </p>
+    <div style="text-align:center; padding: 50px;">
+        <h3 style="color:red;">No Student Record Found</h3>
+        <p>Search ID: <%= enquiryId %> | App No: <%= applicationNo %></p>
+    </div>
 <%
     }
 } catch (Exception e) {
-    out.println("<pre>Error: " + e.getMessage() + "</pre>");
+    out.println("<b>Database Error:</b> " + e.getMessage());
 } finally {
     if (rs != null) rs.close();
     if (ps != null) ps.close();

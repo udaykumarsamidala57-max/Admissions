@@ -46,7 +46,7 @@ String[] classOrder = {"Nursery","LKG","UKG","Class 1","Class 2","Class 3","Clas
     </div>
 
     <div class="table-box">
-        <h3>Class-wise Vacancy & Boarding Bifurcation</h3>
+        <h3>Class-wise Vacancy </h3>
         <table>
             <thead>
                 <tr>

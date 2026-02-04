@@ -174,6 +174,7 @@ button:hover {
 <option>Class 2</option><option>Class 3</option>
 <option>Class 4</option><option>Class 5</option><option>Class 6</option>
 <option>Class 7</option><option>Class 8</option>
+<option>Class 9</option>
 </select>
 <div id="eligibilityMsg" class="error-msg"></div>
 </div>
@@ -184,6 +185,7 @@ button:hover {
 <option value="" disabled selected>-- Select Admission Type --</option>
 <option>Dayscholar</option>
 <option>Residential</option>
+<option>Semi Residential</option>
 
 </select>
 </div>

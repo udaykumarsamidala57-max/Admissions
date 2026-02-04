@@ -114,6 +114,9 @@
             <button class="btn" onclick="location.href='marks_report.jsp'">
                 📈 <span>Test Report</span>
             </button>
+            <button class="btn blue" onclick="location.href='Capcity.jsp'">
+                📈 <span>Create vacancy</span>
+            </button>
 
             <button class="btn blue" onclick="location.href='student_tc_update.jsp'">
                 📄 <span>TC Update</span>
