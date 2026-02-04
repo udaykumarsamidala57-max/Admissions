@@ -76,7 +76,7 @@ table{
 thead th{
     position:sticky;
     top:0;
-    background: linear-gradient(135deg,#1e3a8a,#4338ca);
+    background: #0f2a4d;
     color:white;
     z-index:100;
     font-weight:700;

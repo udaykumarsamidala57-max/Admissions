@@ -47,7 +47,7 @@ select, input[type="date"] {
 
 /* Table Styles */
 .marksTable { width: 100%; border-collapse: collapse; min-width: 900px; }
-.marksTable th { background: #2c3e50; color: white; padding: 12px; font-weight: 500; }
+.marksTable th { background: #0f2a4d; color: white; padding: 12px; font-weight: 500; }
 .marksTable td { padding: 8px; border-bottom: 1px solid #e5e9f2; text-align: center; }
 
 /* Input Styles */

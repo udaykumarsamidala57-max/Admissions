@@ -104,7 +104,7 @@ table {
 }
 
 th {
-    background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+    background: #0f2a4d;
     color: white;
     padding: 12px;
 }

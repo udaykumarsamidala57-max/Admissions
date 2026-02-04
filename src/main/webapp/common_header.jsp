@@ -1,6 +1,7 @@
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page session="true" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <%
     HttpSession sess = request.getSession(false);
     if (sess == null || sess.getAttribute("username") == null) {
@@ -9,123 +10,139 @@
     }
 
     String role = (String) sess.getAttribute("role");
-    String User = (String) sess.getAttribute("username");
+    String user = (String) sess.getAttribute("username");
 %>
 
 <style>
-/* ================= HEADER ISOLATED SCOPE ================= */
-.ams-header *{
+/* ================= PROFESSIONAL HEADER ================= */
+.ams-header {
     box-sizing: border-box;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: 'Inter', "Segoe UI", Roboto, sans-serif;
+    background: #0f2a4d;
+    border-bottom: 3px solid #38bdf8; /* Accent border */
 }
 
-/* ===== HEADER BAR ===== */
-.ams-header .toolbar{
-    position: sticky;
-    top: 0;
-    z-index: 99999;
-    background: linear-gradient(135deg,#1e3a8a,#4338ca);
-    padding: 14px 22px;
+.ams-header .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 12px 24px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    color: white;
+    justify-content: space-between;
 }
 
-/* ===== TITLE ===== */
-.ams-header .toolbar h2{
-    margin: 0;
-    font-size: 22px;
+/* ===== BRAND SECTION ===== */
+.ams-header .brand-box {
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid #fbbf24; /* Gold highlight bar */
+    padding-left: 15px;
+}
+
+.ams-header .school-name {
+    color: #fbbf24; /* Gold/Yellow highlight */
+    font-size: 1.2rem;
     font-weight: 800;
     letter-spacing: 0.5px;
-    white-space: nowrap;
+    text-transform: uppercase;
+    line-height: 1.1;
 }
 
-/* ===== RIGHT MENU ===== */
-.ams-header .menu-right{
+.ams-header .system-name {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+/* ===== NAVIGATION ===== */
+.ams-header nav ul {
+    list-style: none;
     display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
 }
 
-/* ===== BUTTONS ===== */
-.ams-header .btn{
-    border: none;
-    padding: 10px 18px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
+.ams-header nav ul li a {
+    text-decoration: none;
+    color: #e5e7eb;
     font-size: 14px;
-    color: white;
-    background: linear-gradient(135deg,#22c55e,#16a34a);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-    transition: all .25s ease;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.ams-header nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #38bdf8;
+}
+
+/* ===== USER PROFILE ===== */
+.ams-header .user-info {
     display: flex;
     align-items: center;
-    gap: 6px;
-    white-space: nowrap;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 16px;
+    border-radius: 50px;
 }
 
-.ams-header .btn:hover{
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+.ams-header .user-name {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-/* Button colors */
-.ams-header .btn.blue{ background: linear-gradient(135deg,#2563eb,#1d4ed8); }
-.ams-header .btn.red{  background: linear-gradient(135deg,#ef4444,#dc2626); }
-.ams-header .btn.gray{ background: linear-gradient(135deg,#64748b,#475569); }
+.ams-header .logout-btn {
+    color: #fca5a5;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255,255,255,0.2);
+}
 
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-    .ams-header .toolbar{
+.ams-header .logout-btn:hover {
+    color: #ef4444;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 1024px) {
+    .ams-header .nav-container {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        gap: 15px;
+        text-align: center;
     }
-    .ams-header .menu-right{
-        width: 100%;
-        justify-content: flex-end;
-    }
+    .ams-header .brand-box { border-left: none; padding-left: 0; }
 }
 </style>
 
-<!-- ================= HEADER ================= -->
-<div class="ams-header">
-    <div class="toolbar">
-        <h2 style="color:white">🎓 Admissions Management System</h2>
-
-        <div class="menu-right">
-
-            <button class="btn gray" onclick="location.href='dashboard'">
-                📊 <span>Dashboard</span>
-            </button>
-
-            <button class="btn" onclick="location.href='admission'">
-                📝 <span>Enquiries</span>
-            </button>
-
-            <button class="btn" onclick="location.href='enter_marks.jsp'">
-                🧪 <span>Entrance Test</span>
-            </button>
-
-            <button class="btn" onclick="location.href='marks_report.jsp'">
-                📈 <span>Test Report</span>
-            </button>
-            <button class="btn blue" onclick="location.href='Capcity.jsp'">
-                📈 <span>Create vacancy</span>
-            </button>
-
-            <button class="btn blue" onclick="location.href='student_tc_update.jsp'">
-                📄 <span>TC Update</span>
-            </button>
-
-            <button class="btn red" onclick="location.href='Logout.jsp'">
-                🚪 <span>Logout</span>
-            </button>
-
+<header class="ams-header">
+    <div class="nav-container">
+        
+        <div class="brand-box">
+            <span class="school-name">Sandur Residential School</span>
+            <span class="system-name">Admissions Management System</span>
         </div>
+
+        <nav>
+            <ul>
+                <li><a href="dashboard">Home</a></li>
+                <li><a href="admission">Enquiries</a></li>
+                <li><a href="enter_marks.jsp">Exam</a></li>
+                <li><a href="marks_report.jsp">Tabulation</a></li>
+                <li><a href="Capcity.jsp">Vacancy</a></li>
+                <li><a href="student_tc_update.jsp">TC Update</a></li>
+            </ul>
+        </nav>
+
+        <div class="user-info">
+            <span class="user-name">👤 <%= user %></span>
+            <a href="Logout.jsp" class="logout-btn">Logout</a>
+        </div>
+
     </div>
-</div>
+</header>

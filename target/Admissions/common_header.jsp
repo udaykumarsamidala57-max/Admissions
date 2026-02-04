@@ -24,7 +24,7 @@
     position: sticky;
     top: 0;
     z-index: 99999;
-    background: linear-gradient(135deg,#1e3a8a,#4338ca);
+    background: #2F405C;
     padding: 14px 22px;
     display: flex;
     justify-content: space-between;

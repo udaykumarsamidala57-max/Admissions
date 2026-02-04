@@ -29,7 +29,7 @@ body {
 
 /* ================= CARD CONTAINER ================= */
 .container {
-    max-width: 1300px;
+    max-width: 1800px;
     margin: 25px auto;
     background: #fff;
     padding: 25px 30px;
@@ -84,7 +84,7 @@ select:focus, input:focus {
 }
 
 .marksTable th {
-    background: #2c3e50;
+    background: #0f2a4d;
     color: white;
     padding: 10px;
     font-weight: 500;
