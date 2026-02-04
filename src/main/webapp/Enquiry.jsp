@@ -134,7 +134,7 @@ button:hover {
 
 <form action="SaveEnquiryServlet" method="post" onsubmit="return validateBeforeSubmit();">
 
-<!-- Student Details -->
+
 <div class="section-card">
 <div class="section-title">Student Details</div>
 <div class="form-grid">
