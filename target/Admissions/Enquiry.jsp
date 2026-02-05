@@ -134,7 +134,7 @@ button:hover {
 
 <form action="SaveEnquiryServlet" method="post" onsubmit="return validateBeforeSubmit();">
 
-<!-- Student Details -->
+
 <div class="section-card">
 <div class="section-title">Student Details</div>
 <div class="form-grid">
@@ -193,7 +193,7 @@ button:hover {
 </div>
 </div>
 
-<!-- Father -->
+
 <div class="section-card">
 <div class="section-title">Father Details</div>
 <div class="form-grid">
@@ -211,7 +211,7 @@ button:hover {
 </div>
 </div>
 
-<!-- Mother -->
+
 <div class="section-card">
 <div class="section-title">Mother Details</div>
 <div class="form-grid">
@@ -228,7 +228,7 @@ button:hover {
 </div>
 </div>
 
-<!-- Other -->
+
 <div class="section-card">
 <div class="section-title">Other Details</div>
 <div class="form-grid">
@@ -246,22 +246,20 @@ button:hover {
 </form>
 </div>
 
-<!-- 🔴 YOUR ENTIRE JAVASCRIPT IS KEPT 100% SAME BELOW -->
+
 <script>
 let mobileExists = false;
 let notEligible = false;
 
-// 🎯 FIXED CUT-OFF DATE
-const CUTOFF_DATE = new Date(2026, 4, 31); // 31-05-2026 (Month starts from 0)
 
-// =========================
-// AGE CALCULATION
-// =========================
+const CUTOFF_DATE = new Date(2026, 4, 31); 
+
+
 function calculateAge() {
     let dobValue = document.getElementById("dob").value;
     if (!dobValue) return;
 
-    // input type="date" gives yyyy-mm-dd → directly usable
+    
     let dob = new Date(dobValue);
 
     let years = CUTOFF_DATE.getFullYear() - dob.getFullYear();
@@ -284,9 +282,7 @@ function calculateAge() {
 }
 
 
-// =========================
-// ELIGIBILITY CHECK
-// =========================
+
 function checkEligibility() {
     let dobValue = document.getElementById("dob").value;
     let cls = document.getElementById("classSelect").value;
@@ -295,7 +291,7 @@ function checkEligibility() {
 
     let dob = new Date(dobValue);
 
-    // ✅ Only for these classes
+   
     let requiredAge = {
         "Nursery": 3,
         "LKG": 4,
@@ -305,7 +301,7 @@ function checkEligibility() {
 
     let msg = document.getElementById("eligibilityMsg");
 
-    // 🟡 If class is NOT in the list → no eligibility check
+    
     if (requiredAge[cls] === undefined) {
         msg.innerHTML = "ℹ Age eligibility will be verified manually for this class.";
         msg.className = "success-msg";
@@ -314,7 +310,7 @@ function checkEligibility() {
         return;
     }
 
-    // Date when child completes required age
+    
     let eligibleDate = new Date(
         dob.getFullYear() + requiredAge[cls],
         dob.getMonth(),
@@ -341,9 +337,7 @@ function checkEligibility() {
 }
 
 
-// =========================
-// MOBILE CHECK (UNCHANGED)
-// =========================
+
 function checkMobile(mobile) {
     if (mobile.length != 10) return;
 
@@ -384,9 +378,7 @@ function checkMobile(mobile) {
 }
 
 
-// =========================
-// FINAL SUBMIT VALIDATION
-// =========================
+
 function validateBeforeSubmit() {
     if (mobileExists || notEligible) {
         alert("Please fix errors before submitting!");

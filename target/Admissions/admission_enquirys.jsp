@@ -23,104 +23,273 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{ box-sizing:border-box; font-family:Inter,Segoe UI,Arial; }
+
+*{
+    box-sizing: border-box;
+    font-family: Inter, Segoe UI, Arial, sans-serif;
+}
 
 body{
-    margin:0;
-    min-height:100vh;
+    margin: 0;
+    min-height: 100vh;
     background:
         radial-gradient(circle at 10% 10%, #dbeafe 0%, transparent 40%),
         radial-gradient(circle at 90% 20%, #fef3c7 0%, transparent 40%),
         linear-gradient(135deg,#eef2ff,#f8fafc);
 }
 
-/* ===== SUMMARY CARDS ===== */
-.summary-bar{ display:flex; gap:12px; flex-wrap:wrap; width:100%; }
+
+.summary-bar{
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 14px;
+}
+
 .summary-card{
-    flex:1; min-width:160px; padding:12px 16px; border-radius:14px;
-    color:white; box-shadow:0 8px 20px rgba(0,0,0,0.2);
-    display:flex; flex-direction:column; align-items:flex-start;
-    justify-content:center; transition:.2s;
+    flex: 1;
+    min-width: 170px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    transition: 0.25s ease;
 }
-.summary-card:hover{ transform: translateY(-3px) scale(1.02); }
-.summary-title{ font-size:13px; opacity:0.9; font-weight:600; }
-.summary-value{ font-size:26px; font-weight:800; margin-top:4px; }
 
-.sum-total{ background: linear-gradient(135deg,#2563eb,#1d4ed8); }
-.sum-visible{ background: linear-gradient(135deg,#0ea5e9,#0284c7); }
-.sum-day{ background: linear-gradient(135deg,#22c55e,#16a34a); }
-.app{ display:flex; flex-direction:column; height:100vh; }
-
-/* ===== HEADER & FILTERS ===== */
-.toolbar{
-    position:sticky; top:0; z-index:100;
-    background: linear-gradient(135deg,#1e3a8a,#4338ca);
-    padding:14px 22px; display:flex; justify-content:space-between; align-items:center;
-    box-shadow:0 10px 30px rgba(0,0,0,0.25); color:white;
+.summary-card:hover{
+    transform: translateY(-4px) scale(1.03);
 }
-.toolbar h2{ margin:0; font-size:22px; font-weight:700; }
+
+.summary-title{
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.summary-value{
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+}
+
+/* Card colors */
+.sum-total{ background: linear-gradient(135deg,#2563eb,#1e40af); }
+.sum-visible{ background: linear-gradient(135deg,#0ea5e9,#0369a1); }
+.sum-day{ background: linear-gradient(135deg,#22c55e,#15803d); }
+
 
 .btn{
-    border:none; padding:9px 16px; border-radius:12px;
-    cursor:pointer; font-weight:600; font-size:14px; color:white;
-    background: linear-gradient(135deg,#22c55e,#16a34a);
-    box-shadow:0 6px 14px rgba(0,0,0,0.25); transition:.2s;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: 0.25s ease;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
 }
-.btn:hover{ transform:translateY(-2px); }
-.btn.red{ background:linear-gradient(135deg,#ef4444,#dc2626); }
-.btn.gray{ background:linear-gradient(135deg,#64748b,#475569); }
-.btn.blue{ background:linear-gradient(135deg,#2563eb,#1d4ed8); }
+
+.btn:hover{ transform: translateY(-2px); }
+
+.btn.green{ background: linear-gradient(135deg,#22c55e,#15803d); }
+.btn.red{ background: linear-gradient(135deg,#ef4444,#b91c1c); }
+.btn.blue{ background: linear-gradient(135deg,#2563eb,#1e40af); }
+.btn.gray{ background: linear-gradient(135deg,#64748b,#475569); }
+
 
 .filters{
-    margin:14px; padding:12px 14px; display:flex; gap:12px; flex-wrap:wrap;
-    background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
-    border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
-.filters input, .filters select{
-    padding:9px 12px; border-radius:10px; border:1px solid #c7d2fe; font-size:14px;
+    margin: 14px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
-/* ===== TABLE ===== */
-.table-wrap{ flex:1; overflow:auto; padding:0 14px 14px 14px; }
+.filters input,
+.filters select{
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid #c7d2fe;
+    font-size: 14px;
+    outline: none;
+}
+
+.filters input:focus,
+.filters select:focus{
+    border-color: #4338ca;
+    box-shadow: 0 0 6px rgba(67,56,202,0.4);
+}
+
+
+.table-wrap{
+    padding: 14px;
+    overflow-x: auto;
+}
+
 table{
-    width:100%; border-collapse:separate; border-spacing:0;
-    background:white; border-radius:16px; overflow:hidden;
-    box-shadow:0 10px 25px rgba(0,0,0,0.12);
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 14px;
 }
-th{ position:sticky; top:0; background:#eef2ff; z-index:10; font-weight:700; }
-th,td{ padding:10px; border-bottom:1px solid #e5e7eb; text-align:center; font-size:13.5px; }
-tr:nth-child(even){ background:#f8fafc; }
-tr:hover{ background:#eef2ff; }
 
-.badge-day{ background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-weight:700; }
-.badge-res{ background:#fee2e2; color:#7f1d1d; padding:4px 10px; border-radius:20px; font-weight:700; }
 
-/* ===== MODALS ===== */
+table thead th{
+    background: #0f2a4d;
+    color: #ffffff;
+    padding: 9px 10px;
+    font-weight: 700;
+    border: 1px solid #0b1f3a;
+    text-align: left;
+    white-space: nowrap;
+}
+
+
+table tbody td{
+    padding: 8px 10px;
+    border: 1px solid #000000;
+    color: #000000;
+    vertical-align: middle;
+}
+
+
+table tbody td:first-child{
+    text-align: center;
+    width: 60px;
+}
+
+
+table tbody td:nth-child(2),
+table tbody td:nth-child(5){
+    font-weight: 600;
+}
+
+
+table tbody tr:hover{
+    background: #f1f5f9;
+}
+
+
+table, th, td{
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+@media(max-width: 768px){
+    table{ font-size: 13px; }
+}
+
+
+.badge-day{
+    background: #dcfce7;
+    color: #166534;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+.badge-res{
+    background: #fee2e2;
+    color: #7f1d1d;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+
 .modal-overlay{
-    position:fixed; inset:0; background: rgba(0,0,0,0.6);
-    display:flex; align-items:center; justify-content:center; z-index:9999;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
+
 .modal-box{
-    background:white; padding:22px; border-radius:18px;
-    width:700px; max-width:95%; box-shadow:0 20px 60px rgba(0,0,0,0.45);
-    animation: pop .25s ease;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 20px;
+    width: 700px;
+    max-width: 95%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    animation: pop 0.25s ease;
 }
-@keyframes pop{ from{ transform:scale(.85); opacity:0; } to{ transform:scale(1); opacity:1; } }
-.modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.close-btn{ background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; }
 
-.form-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
-.form-grid div { display: flex; flex-direction: column; }
-.form-grid label { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #1e293b; }
-.form-grid input { padding: 8px 10px; border-radius: 10px; border: 1px solid #c7d2fe; font-size: 14px; outline: none; transition: 0.2s; }
-.form-grid input:focus { border-color: #4338ca; box-shadow: 0 0 6px rgba(67, 56, 202, 0.4); }
+@keyframes pop{
+    from{ transform: scale(0.85); opacity: 0; }
+    to{ transform: scale(1); opacity: 1; }
+}
 
-@media(max-width:900px){ .form-grid{ grid-template-columns:1fr 1fr; } }
-@media(max-width:600px){ .form-grid{ grid-template-columns: 1fr; } }
+.modal-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.close-btn{
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+.form-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.form-grid div{
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid label{
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1e293b;
+}
+
+.form-grid input{
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid #c7d2fe;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.form-grid input:focus{
+    border-color: #4338ca;
+    box-shadow: 0 0 6px rgba(67,56,202,0.4);
+}
+
+
+@media(max-width: 900px){
+    .form-grid{ grid-template-columns: 1fr 1fr; }
+}
+@media(max-width: 600px){
+    .form-grid{ grid-template-columns: 1fr; }
+}
+
 </style>
 
 <script>
-// Logic to calculate exact age as on 31st May 2026
+
 function calculateAges() {
     let cells = document.querySelectorAll(".age-cell");
     let asOnDate = new Date(2026, 4, 31);
@@ -199,9 +368,9 @@ function downloadExcel() {
     document.body.removeChild(link);
 }
 
-// Hall Ticket Printer: Sends both Enquiry ID and Application No
+
 function printHallTicket(appNo, id){
-    // Clean strings and handle nulls
+  
     let safeAppNo = (appNo && appNo !== "null") ? appNo.trim() : "";
     let url = "HallTicket.jsp?enquiry_id=" + id + "&application_no=" + encodeURIComponent(safeAppNo);
     window.open(url, "_blank");
@@ -280,10 +449,12 @@ window.onload = function(){ calculateAges(); applyFilters(); }
 <div class="table-wrap">
 <table id="enquiryTable">
 <tr>
+<thead>
     <th>ID</th><th>Student</th><th>Gender</th><th>DOB</th><th>Age</th>
     <th>Class</th><th>Type</th><th>Father</th><th>F Occ</th><th>F Org</th>
     <th>F Mobile</th><th>Mother</th><th>M Occ</th><th>M Org</th>
-    <th>M Mobile</th><th>Place</th><th>Segment</th><th>Exam Date</th><th>App No</th><th>Action</th><th>Approval</th>
+    <th>M Mobile</th><th>Place</th><th>Segment</th><th>Exam Date</th><th>App No</th><th>Edit</th><th>Print</th><th>Approve</th>
+    </thead>
 </tr>
 
 <%
@@ -322,17 +493,19 @@ while(rs!=null && rs.next()){
 
     <td>
         <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
-        <button class="btn gray" onclick="printHallTicket('<%=appNo%>', <%=id%>)">Print</button>
+        
         <% if("Global".equalsIgnoreCase(role)){ %>
         <button class="btn red" onclick="deleteRecord(<%=id%>)">Delete</button>
         <% } %>
     </td>
-
+   <td>
+   <button class="btn gray" onclick="printHallTicket('<%=appNo%>', <%=id%>)">Print</button>
+   </td>
     <td id="approveCell<%=id%>">
         <% if("Global".equalsIgnoreCase(role)){
             String approved = rs.getString("approved");
             if(approved==null || !"Approved".equalsIgnoreCase(approved)){ %>
-            <button onclick="approveRecord(<%=id%>)" class="btn">Approve</button>
+            <button onclick="approveRecord(<%=id%>)" class="btn gray">Approve</button>
         <% } else { %>
             <span style="color:#15803d;font-weight:900;">Approved</span>
         <% } } %>
@@ -379,7 +552,7 @@ if(rs != null) {
             <div><label>Application No</label><input type="text" name="application_no" value="<%= rs.getString("application_no") == null ? "" : rs.getString("application_no") %>"></div>
         </div>
         <br>
-        <button class="btn" type="submit">Save Changes</button>
+        <button class="btn gray" type="submit">Save Changes</button>
         <button class="btn gray" type="button" onclick="closeEditModal(<%=id%>)">Cancel</button>
     </form>
 </div>

@@ -25,22 +25,26 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
-        int classId = Integer.parseInt(request.getParameter("class_id"));
+        String classParam = request.getParameter("class_id");
         String examDate = request.getParameter("exam_date");
 
-        if (examDate == null || examDate.trim().isEmpty()) {
-            out.println("<p style='color:red;'>Please select exam date.</p>");
+        if (classParam == null || classParam.isEmpty() || examDate == null || examDate.isEmpty()) {
+            out.println("<p style='color:red;'>Missing class or exam date.</p>");
             return;
         }
 
+        int classId = Integer.parseInt(classParam);
         Connection con = null;
 
         try {
             con = DBUtil.getConnection();
 
-            // ================= LOAD EXAMS =================
+            /* =========================
+               1. LOAD EXAMS (SUBJECTS)
+               ========================= */
             PreparedStatement psExams = con.prepareStatement(
-                "SELECT exam_id, exam_name, max_marks FROM class_exams WHERE class_id=?"
+                "SELECT exam_id, exam_name, IFNULL(max_marks, 100) AS max_marks " +
+                "FROM class_exams WHERE class_id=?"
             );
             psExams.setInt(1, classId);
             ResultSet rsExams = psExams.executeQuery();
@@ -54,26 +58,45 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
                 examNames.add(rsExams.getString("exam_name"));
                 maxMarks.add(rsExams.getInt("max_marks"));
             }
-
             rsExams.close();
             psExams.close();
 
             if (examIds.isEmpty()) {
-                out.println("<p style='color:red;'>No exams defined for this class.</p>");
+                out.println("<p style='color:orange;font-weight:bold;'>⚠️ No exams found for this class.</p>");
                 return;
             }
 
-            // ================= LOAD STUDENTS =================
+            /* =========================
+               2. LOAD EXISTING MARKS
+               ========================= */
+            PreparedStatement psMarks = con.prepareStatement(
+                "SELECT enquiry_id, exam_id, marks_obtained " +
+                "FROM student_exam_marks " +
+                "WHERE REPLACE(REPLACE(exam_date,'/','-'),' ','') = ?"
+            );
+            psMarks.setString(1, examDate);
+            ResultSet rsMarks = psMarks.executeQuery();
+
+            HashMap<String, Integer> marksMap = new HashMap<>();
+            while (rsMarks.next()) {
+                String key = rsMarks.getInt("enquiry_id") + "_" + rsMarks.getInt("exam_id");
+                marksMap.put(key, rsMarks.getInt("marks_obtained"));
+            }
+            rsMarks.close();
+            psMarks.close();
+
+            /* =========================
+               3. LOAD STUDENTS
+               ========================= */
             PreparedStatement psStudents = con.prepareStatement(
-                "SELECT " +
-                " ae.enquiry_id, " +
-                " IFNULL(ae.application_no, '') AS application_no, " +
-                " COALESCE(ae.student_name, ae.entrance_remarks) AS student_name, " +
-                " ae.entrance_remarks " +
+                "SELECT ae.enquiry_id, IFNULL(ae.application_no,'') AS application_no, " +
+                "COALESCE(ae.student_name, ae.entrance_remarks) AS student_name, " +
+                "ae.entrance_remarks " +
                 "FROM admission_enquiry ae " +
-                "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
-                "WHERE c.class_id=? AND ae.approved='Approved' AND ae.exam_date=? " +
-                "ORDER BY ae.enquiry_id"
+                "JOIN classes c ON TRIM(LOWER(ae.class_of_admission)) = TRIM(LOWER(c.class_name)) " +
+                "WHERE c.class_id=? " +
+                "AND ae.approved='Approved' " +
+                "AND REPLACE(REPLACE(ae.exam_date,'/','-'),' ','') = ?"
             );
 
             psStudents.setInt(1, classId);
@@ -81,92 +104,70 @@ public class LoadStudentsAndExamsServlet extends HttpServlet {
 
             ResultSet rsStudents = psStudents.executeQuery();
 
-            // ================= LOAD ALL MARKS =================
-            PreparedStatement psAllMarks = con.prepareStatement(
-                "SELECT enquiry_id, exam_id, marks_obtained FROM student_exam_marks WHERE exam_date=?"
-            );
-            psAllMarks.setString(1, examDate);
-
-            ResultSet rsAllMarks = psAllMarks.executeQuery();
-
-            HashMap<String, Integer> marksMap = new HashMap<>();
-
-            while (rsAllMarks.next()) {
-                String key = rsAllMarks.getInt("enquiry_id") + "_" + rsAllMarks.getInt("exam_id");
-                marksMap.put(key, rsAllMarks.getInt("marks_obtained"));
-            }
-
-            rsAllMarks.close();
-            psAllMarks.close();
-
-            // ================= TABLE HEADER =================
+            /* =========================
+               4. GENERATE TABLE
+               ========================= */
             out.println("<table class='marksTable'>");
-            out.println("<tr>");
-            out.println("<th>S.No</th>");
-            out.println("<th>Enquiry ID</th>");
-            out.println("<th>Application No</th>");
-            out.println("<th>Student Name</th>");
-            out.println("<th>Entrance Remarks</th>");
+            out.println("<thead><tr>");
+            out.println("<th>S.No</th><th>Enquiry ID</th><th>App No</th><th>Student Name</th><th>Remarks</th>");
 
             for (int i = 0; i < examNames.size(); i++) {
-                out.println("<th>" + examNames.get(i) + "<br>(" + maxMarks.get(i) + ")</th>");
+                out.println("<th>" + examNames.get(i) + " (" + maxMarks.get(i) + ")</th>");
             }
 
             out.println("<th>Total</th>");
-            out.println("</tr>");
+            out.println("</tr></thead><tbody>");
 
-            // ================= TABLE BODY =================
-            boolean found = false;
             int sno = 1;
+            boolean found = false;
 
             while (rsStudents.next()) {
                 found = true;
 
-                int enquiryId = rsStudents.getInt("enquiry_id");
+                int enqId = rsStudents.getInt("enquiry_id");
                 String appNo = rsStudents.getString("application_no");
-                String studentName = rsStudents.getString("student_name");
+                String name = rsStudents.getString("student_name");
                 String remarks = rsStudents.getString("entrance_remarks");
 
                 out.println("<tr>");
-                out.println("<td>" + (sno++) + "</td>");
-                out.println("<td><b>" + enquiryId + "</b></td>");
-                out.println("<td><b>" + (appNo == null ? "" : appNo) + "</b></td>");
-                out.println("<td style='text-align:left'>" + (studentName == null ? "" : studentName) + "</td>");
-                out.println("<td><input class='remarksBox' name='remarks_" + enquiryId + "' value='" + (remarks == null ? "" : remarks) + "'></td>");
+                out.println("<td>" + sno++ + "</td>");
+                out.println("<td>" + enqId + "</td>");
+                out.println("<td>" + appNo + "</td>");
+                out.println("<td style='text-align:left'>" + (name == null ? "" : name) + "</td>");
+                out.println("<td><input type='text' class='remarksBox' name='remarks_" + enqId +
+                            "' value='" + (remarks == null ? "" : remarks) + "'></td>");
 
                 int total = 0;
 
                 for (int i = 0; i < examIds.size(); i++) {
                     int examId = examIds.get(i);
+                    Integer mark = marksMap.get(enqId + "_" + examId);
+                    int value = (mark == null) ? 0 : mark;
+                    total += value;
 
-                    Integer marksObj = marksMap.get(enquiryId + "_" + examId);
-                    int marks = (marksObj == null) ? 0 : marksObj;
-
-                    total += marks;
-
-                    out.println("<td>");
-                    out.println("<input type='number' class='markInput' min='0' max='" + maxMarks.get(i) + "' " +
-                        "name='marks_" + enquiryId + "_" + examId + "' " +
-                        "value='" + marks + "'>");
-                    out.println("</td>");
+                    out.println("<td><input type='number' class='markInput' min='0' max='" +
+                                maxMarks.get(i) + "' name='marks_" + enqId + "_" + examId +
+                                "' value='" + value + "'></td>");
                 }
 
-                out.println("<td><input class='totalBox' readonly value='" + total + "'></td>");
+                out.println("<td><input type='text' class='totalBox' readonly value='" + total + "'></td>");
                 out.println("</tr>");
             }
 
-            out.println("</table>");
+            out.println("</tbody></table>");
+
+            if (!found) {
+                out.println("<div style='color:red;font-weight:bold;padding:15px;'>");
+                out.println("❌ No approved students found for this class and exam date.");
+                out.println("</div>");
+            }
 
             rsStudents.close();
             psStudents.close();
 
-            if (!found) {
-                out.println("<p style='color:red;font-weight:bold;'>No students found for selected exam date.</p>");
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
-            out.println("<p style='color:red;'>Error loading data.</p>");
+            out.println("<p style='color:red;'>Error: " + e.getMessage() + "</p>");
         } finally {
             try { if (con != null) con.close(); } catch (Exception e) {}
         }

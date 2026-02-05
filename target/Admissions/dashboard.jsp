@@ -24,13 +24,13 @@ String[] classOrder = {"Nursery","LKG","UKG","Class 1","Class 2","Class 3","Clas
         .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 30px 0; }
         .card { padding: 20px; border-radius: 15px; color: white; position: relative; }
         .card i { position: absolute; right: 15px; top: 15px; font-size: 40px; opacity: 0.3; }
-        .card.total { background: #0f172a; } .card.day { background: #2563eb; } .card.res { background: #16a34a; } .card.semi { background: #ea580c; }
+        .card.total { background: #434E78; } .card.day { background: #607B8F; } .card.res { background: #F7E396; } .card.semi { background: #E97F4A; }
         .table-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #facc15; border: 1px solid #eab308; padding: 10px; font-size: 13px; }
+        th { background: #0f2a4d; border: 1px solid ; padding: 10px;color: white; font-size: 13px; }
         td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-weight: 600; }
         .neg { color: red; background: #fff1f2; }
-        .grand { background: #0f172a; color: white; }
+        .grand { background: #0f2a4d; color: white; }
     </style>
 </head>
 <body>
@@ -41,7 +41,7 @@ String[] classOrder = {"Nursery","LKG","UKG","Class 1","Class 2","Class 3","Clas
     <div class="cards">
         <div class="card total"><i class="fa-solid fa-users"></i><h1><%= total %></h1><p>Enquiries</p></div>
         <div class="card day"><i class="fa-solid fa-sun"></i><h1><%= day %></h1><p>Day Scholars</p></div>
-        <div class="card res"><i class="fa-solid fa-bed"></i><h1><%= res %></h1><p>Residential</p></div>
+        <div class="card res"><i style="color:black" class="fa-solid fa-bed"></i><h1 style="color:black"><%= res %></h1><p style="color:black">Residential</p></div>
         <div class="card semi"><i class="fa-solid fa-bus"></i><h1><%= semi %></h1><p>Semi Res</p></div>
     </div>
 

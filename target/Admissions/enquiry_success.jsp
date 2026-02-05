@@ -17,7 +17,7 @@ body {
     justify-content: center;
 }
 
-/* Glass card */
+
 .success-card {
     background: rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
@@ -29,7 +29,7 @@ body {
     animation: fadeSlide 0.8s ease;
 }
 
-/* Circle */
+
 .check-wrap {
     width: 110px;
     height: 110px;
@@ -63,7 +63,7 @@ p {
     opacity: 0.9;
 }
 
-/* Button */
+
 .btn {
     margin-top: 30px;
     padding: 12px 28px;
@@ -82,7 +82,7 @@ p {
     box-shadow: 0 10px 20px rgba(0,0,0,0.25);
 }
 
-/* Animations */
+
 @keyframes fadeSlide {
     from { opacity: 0; transform: translateY(20px) scale(0.95); }
     to { opacity: 1; transform: translateY(0) scale(1); }
