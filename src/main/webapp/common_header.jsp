@@ -134,6 +134,7 @@
                 <li><a href="admission">Enquiries</a></li>
                 <li><a href="enter_marks.jsp">Exam</a></li>
                 <li><a href="marks_report.jsp">Tabulation</a></li>
+                <li><a href="ApproveAdmission.jsp">Approve Admission</a></li>
                 <li><a href="Capcity.jsp">Vacancy</a></li>
                 <li><a href="student_tc_update.jsp">TC Update</a></li>
             </ul>
