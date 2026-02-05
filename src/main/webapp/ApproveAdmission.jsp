@@ -73,19 +73,28 @@
         }
 
         .card-body { padding: 20px; position: relative; z-index: 2; }
-        .student-name { font-size: 20px; font-weight: 800; margin: 0 0 12px 0; color: var(--header-dark); }
+        
+      
+        .student-name { 
+            font-size: 20px; 
+            font-weight: 800; 
+            margin: 0 0 12px 0; 
+            color: var(--header-dark); 
+            text-transform: capitalize; 
+        }
+
         .tag-row { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tag { font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+        .tag { font-size: 14px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
         .tag-segment { background: #fffbeb; color: #92400e; }
         .tag-type { background: #f0fdf4; color: #166534; }
         
         .parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; padding: 12px; background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid #f1f5f9; }
         .parent-box h4 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
-        .p-detail { font-size: 13px; margin-bottom: 2px; font-weight: 700; display: block; }
-        .p-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; display: block; line-height: 1.4; }
+        .p-detail { font-size: 14px; margin-bottom: 2px; font-weight: 700; display: block; text-transform: capitalize; }
+        .p-sub { font-size: 14px; color: var(--text-muted); font-weight: 500; display: block; line-height: 1.4; }
         
         .marks-container { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; background: #fff; }
-        .mark-item { font-size: 11px; display: flex; justify-content: space-between; font-weight: 600; }
+        .mark-item { font-size: 12px; display: flex; justify-content: space-between; font-weight: 600; }
         .mark-item b { color: var(--primary); }
         
         .card-footer { padding: 16px 20px; display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; background: rgba(255,255,255,0.8); }
@@ -97,6 +106,7 @@
         .btn-reject { background: #fff; color: var(--danger); border: 1.5px solid #fee2e2; }
         .card-selected { border-color: var(--success) !important; border-top-width: 8px !important; box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.3) !important; }
         .no-data { grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted); }
+        
     </style>
 </head>
 <body>
@@ -123,6 +133,10 @@
 </div>
 <script>
 function toggleDateFilter() { document.getElementById("exam_date").disabled = document.getElementById("all_dates_check").checked; loadData(); }
+
+
+function cap(str) { return str ? str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : ""; }
+
 async function loadData() {
     const classId = document.getElementById("class_id").value;
     const isAll = document.getElementById("all_dates_check").checked;
@@ -139,6 +153,7 @@ async function loadData() {
         renderCards(data.exams, processed);
     } catch (e) { console.error(e); }
 }
+
 function renderCards(exams, students) {
     const container = document.getElementById("dataArea");
     if(!students.length) { container.innerHTML = '<div class="no-data">No records.</div>'; return; }
