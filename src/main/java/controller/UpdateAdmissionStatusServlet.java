@@ -9,7 +9,7 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;	
 import javax.servlet.http.HttpServletResponse;
 import bean.DBUtil;
 
@@ -36,6 +36,8 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
         }
     }
 
+ // ... [Keep imports and doPost as they are] ...
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
@@ -50,6 +52,7 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
             int classId = Integer.parseInt(classIdRaw);
             boolean isAllDates = "All".equalsIgnoreCase(examDate);
 
+            // Fetch Exams
             StringBuilder examsJson = new StringBuilder("[");
             String examQuery = "SELECT exam_id, exam_name, max_marks FROM class_exams WHERE class_id=?";
             try (PreparedStatement ps = con.prepareStatement(examQuery)) {
@@ -63,6 +66,7 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
             if(examsJson.length() > 1) examsJson.setLength(examsJson.length() - 1);
             examsJson.append("]");
 
+            // Fetch Marks into Map
             HashMap<String, Integer> marksMap = new HashMap<>();
             String mQuery = "SELECT enquiry_id, exam_id, marks_obtained FROM student_exam_marks";
             try (PreparedStatement ps = con.prepareStatement(mQuery)) {
@@ -72,6 +76,7 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
                 }
             }
 
+            // Fetch Students - Query updated to use proper schema names
             StringBuilder studentsJson = new StringBuilder("[");
             String sQuery = "SELECT ae.* FROM admission_enquiry ae " +
                            "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
@@ -90,18 +95,19 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
                     studentsJson.append("\"id\":").append(enqId).append(",");
                     studentsJson.append("\"appNo\":\"").append(rs.getString("application_no")).append("\",");
                     studentsJson.append("\"name\":\"").append(rs.getString("student_name")).append("\",");
-                    studentsJson.append("\"status\":\"").append(rs.getString("Admission_status") != null ? rs.getString("Admission_status") : "").append("\",");
                     
+                    // CORRECTED COLUMN NAME HERE
+                    studentsJson.append("\"dob\":\"").append(rs.getString("date_of_birth") != null ? rs.getString("date_of_birth") : "").append("\",");
+                    
+                    studentsJson.append("\"status\":\"").append(rs.getString("Admission_status") != null ? rs.getString("Admission_status") : "").append("\",");
                     studentsJson.append("\"father\":\"").append(rs.getString("father_name")).append("\",");
                     studentsJson.append("\"fMobile\":\"").append(rs.getString("father_mobile_no")).append("\",");
                     studentsJson.append("\"fOcc\":\"").append(rs.getString("father_occupation") != null ? rs.getString("father_occupation") : "N/A").append("\",");
                     studentsJson.append("\"fOrg\":\"").append(rs.getString("father_organization") != null ? rs.getString("father_organization") : "N/A").append("\",");
-                    
                     studentsJson.append("\"mother\":\"").append(rs.getString("mother_name")).append("\",");
                     studentsJson.append("\"mMobile\":\"").append(rs.getString("mother_mobile_no") != null ? rs.getString("mother_mobile_no") : "N/A").append("\",");
                     studentsJson.append("\"mOcc\":\"").append(rs.getString("mother_occupation") != null ? rs.getString("mother_occupation") : "N/A").append("\",");
                     studentsJson.append("\"mOrg\":\"").append(rs.getString("mother_organization") != null ? rs.getString("mother_organization") : "N/A").append("\",");
-                    
                     studentsJson.append("\"admission_type\":\"").append(rs.getString("admission_type") != null ? rs.getString("admission_type") : "Regular").append("\",");
                     studentsJson.append("\"segment\":\"").append(rs.getString("segment") != null ? rs.getString("segment") : "N/A").append("\",");
                     studentsJson.append("\"place\":\"").append(rs.getString("place_from") != null ? rs.getString("place_from") : "N/A").append("\",");
@@ -123,7 +129,9 @@ public class UpdateAdmissionStatusServlet extends HttpServlet {
 
             out.print("{\"exams\":" + examsJson + ", \"students\":" + studentsJson + "}");
         } catch (Exception e) {
+            e.printStackTrace(); // Always print stack trace for debugging!
             response.setStatus(500);
         }
     }
+
 }
