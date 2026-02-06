@@ -45,30 +45,46 @@ select, input[type="date"] {
 
 .table-wrapper { overflow-x: auto; border-radius: 10px; margin-top: 10px; }
 
-
 .marksTable { width: 100%; border-collapse: collapse; min-width: 900px; }
 .marksTable th { background: #0f2a4d; color: white; padding: 12px; font-weight: 500; }
 .marksTable td { padding: 8px; border-bottom: 1px solid #e5e9f2; text-align: center; }
 
-
 .markInput { width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccd6e0; text-align: center; }
 .markInput.changed, .remarksBox.changed { background: #fff3cd !important; border-color: #f39c12; }
-.totalBox, .percentBox { width: 85px; font-weight: 600; background: #ecf0f1; border: none; text-align: center; }
+
+.totalBox, .percentBox {
+    width: 85px;
+    font-weight: 600;
+    background: #ecf0f1;
+    border: none;
+    text-align: center;
+}
+
 .remarksBox { width: 200px; border-radius: 6px; border: 1px solid #ccd6e0; padding: 5px; }
 
-
 .btn-group { margin-top: 20px; display: flex; gap: 10px; }
+
 .save-btn {
-    padding: 10px 25px; border-radius: 8px; border: none;
-    color: white; font-size: 15px; font-weight: 500; cursor: pointer; transition: 0.2s;
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
 }
-.bg-blue { background: linear-gradient(45deg, #3498db, #2c80b4); }
+
 .bg-green { background: linear-gradient(45deg, #27ae60, #1e8449); }
-.save-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 </style>
 
 <script>
-
+/* ----------------- EXCEL EXPORT (UNCHANGED) ----------------- */
 function exportToExcel() {
     const table = document.querySelector("#dataArea table");
     if (!table) {
@@ -76,145 +92,164 @@ function exportToExcel() {
         return;
     }
 
-    
     const ws_data = [];
     const rows = table.querySelectorAll("tr");
 
-    rows.forEach((row) => {
+    rows.forEach(row => {
         const rowData = [];
-        const cells = row.querySelectorAll("th, td");
-        cells.forEach((cell) => {
-           
+        row.querySelectorAll("th, td").forEach(cell => {
             const input = cell.querySelector("input");
-            if (input) {
-                rowData.push(input.value);
-            } else {
-                rowData.push(cell.innerText.trim());
-            }
+            rowData.push(input ? input.value : cell.innerText.trim());
         });
         ws_data.push(rowData);
     });
 
-  
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-   
-    const wscols = ws_data[0].map(() => ({ wch: 15 }));
-    ws['!cols'] = wscols;
+    ws['!cols'] = ws_data[0].map(() => ({ wch: 15 }));
 
     XLSX.utils.book_append_sheet(wb, ws, "Marks_Report");
 
-   
-    const className = document.getElementById("class_id").options[document.getElementById("class_id").selectedIndex].text;
+    const className = document.getElementById("class_id").selectedOptions[0].text;
     const date = document.getElementById("exam_date").value;
     XLSX.writeFile(wb, `Marks_${className}_${date}.xlsx`);
 }
 
-
+/* ----------------- FIX TABLE + ADD PERCENT COLUMN ----------------- */
 function fixTable() {
-    var table = document.querySelector("#dataArea table");
+    const table = document.querySelector("#dataArea table");
     if (!table) return;
-    var thead = table.querySelector("thead") || document.createElement("thead");
-    if (!table.querySelector("thead")) {
+
+    let thead = table.querySelector("thead");
+    if (!thead) {
+        thead = document.createElement("thead");
         thead.appendChild(table.rows[0]);
         table.insertBefore(thead, table.firstChild);
     }
-    var headerRow = thead.rows[0];
+
+    const headerRow = thead.rows[0];
     if (headerRow.cells[headerRow.cells.length - 1].innerText.trim() !== "Percentage") {
-        var thp = document.createElement("th"); thp.innerText = "Percentage";
-        headerRow.appendChild(thp);
+        const th = document.createElement("th");
+        th.innerText = "Percentage";
+        headerRow.appendChild(th);
     }
-    var rows = table.querySelectorAll("tbody tr");
-    rows.forEach(row => {
+
+    table.querySelectorAll("tbody tr").forEach(row => {
         if (!row.querySelector(".percentBox")) {
-            var td = document.createElement("td");
+            const td = document.createElement("td");
             td.innerHTML = '<input type="text" class="percentBox" readonly>';
             row.appendChild(td);
         }
     });
 }
 
+/* ----------------- LOAD DATA ----------------- */
 function loadStudentsAndExams() {
-    var classId = document.getElementById("class_id").value;
-    var examDate = document.getElementById("exam_date").value;
-    if(!classId || !examDate) return;
-    document.getElementById("exam_date_hidden").value = examDate;
-    
-    var xhr = new XMLHttpRequest();
+    const classId = class_id.value;
+    const examDate = exam_date.value;
+    if (!classId || !examDate) return;
+
+    exam_date_hidden.value = examDate;
+
+    const xhr = new XMLHttpRequest();
     xhr.open("GET", "MarksReport?class_id=" + classId + "&exam_date=" + examDate, true);
-    xhr.onload = function() {
-        document.getElementById("dataArea").innerHTML = this.responseText;
+    xhr.onload = function () {
+        dataArea.innerHTML = this.responseText;
         fixTable();
         hookChangeTracking();
         calculateAllRows();
+        sortByPercentageDesc(); // 🔥 SORT HERE
     };
     xhr.send();
 }
 
+/* ----------------- CHANGE TRACKING ----------------- */
 function hookChangeTracking() {
-    var inputs = document.querySelectorAll(".markInput, .remarksBox");
-    inputs.forEach(inp => {
-        inp.setAttribute("data-old", inp.value);
-        inp.addEventListener("input", function() {
-            this.classList.toggle("changed", this.value !== this.getAttribute("data-old"));
-            if(this.classList.contains("markInput")) calculateRow(this);
+    document.querySelectorAll(".markInput, .remarksBox").forEach(inp => {
+        inp.dataset.old = inp.value;
+        inp.addEventListener("input", function () {
+            this.classList.toggle("changed", this.value !== this.dataset.old);
+            if (this.classList.contains("markInput")) calculateRow(this);
         });
     });
 }
 
+/* ----------------- CALCULATIONS ----------------- */
 function calculateRow(input) {
-    var row = input.closest("tr");
-    var markInputs = row.querySelectorAll(".markInput");
-    var total = 0, maxTotal = 0;
-    
-    var headers = document.querySelector("#dataArea table thead tr").cells;
-    markInputs.forEach((inp, idx) => {
+    const row = input.closest("tr");
+    let total = 0, maxTotal = 0;
+
+    const headers = document.querySelector("#dataArea table thead tr").cells;
+
+    row.querySelectorAll(".markInput").forEach(inp => {
         total += parseFloat(inp.value) || 0;
-        
-        var headerText = Array.from(headers).find(h => h.cellIndex === inp.parentElement.cellIndex).innerText;
-        var match = headerText.match(/\((\d+)\)/);
-        if(match) maxTotal += parseFloat(match[1]);
+
+        const headerText = headers[inp.parentElement.cellIndex].innerText;
+        const match = headerText.match(/\((\d+)\)/);
+        if (match) maxTotal += parseFloat(match[1]);
     });
 
     row.querySelector(".totalBox").value = total;
-    if(maxTotal > 0) row.querySelector(".percentBox").value = ((total/maxTotal)*100).toFixed(2);
+    if (maxTotal > 0) {
+        row.querySelector(".percentBox").value = ((total / maxTotal) * 100).toFixed(2);
+    }
+
+    sortByPercentageDesc(); // 🔥 LIVE SORT
 }
 
 function calculateAllRows() {
     document.querySelectorAll(".markInput").forEach(calculateRow);
 }
+
+/* ----------------- SORT BY PERCENTAGE DESC ----------------- */
+function sortByPercentageDesc() {
+    const table = document.querySelector("#dataArea table");
+    if (!table) return;
+
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    rows.sort((a, b) => {
+        const pa = parseFloat(a.querySelector(".percentBox")?.value) || 0;
+        const pb = parseFloat(b.querySelector(".percentBox")?.value) || 0;
+        return pb - pa;
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+}
 </script>
 </head>
-<body>
 
+<body>
 <jsp:include page="common_header.jsp" />
 
 <div class="container">
     <div class="page-title">📘 Exam Marks Entry</div>
-<div class="btn-group" >
-            
-            <button  type="button" class="save-btn bg-green" onclick="exportToExcel()">📊 Download Excel</button>
-        </div>
-    <form method="post" action="" onsubmit="return beforeSubmit()">
+
+    <div class="btn-group">
+        <button type="button" class="save-btn bg-green" onclick="exportToExcel()">📊 Download Excel</button>
+    </div>
+
+    <form>
         <div class="filter-bar">
             <div>
                 <label>Exam Date</label><br>
-                <input type="date" id="exam_date" onchange="loadStudentsAndExams()" value="<%= java.time.LocalDate.now() %>">
-                <input type="hidden" name="exam_date_hidden" id="exam_date_hidden">
+                <input type="date" id="exam_date" value="<%= java.time.LocalDate.now() %>" onchange="loadStudentsAndExams()">
+                <input type="hidden" id="exam_date_hidden">
             </div>
+
             <div>
                 <label>Class</label><br>
-                <select name="class_id" id="class_id" onchange="loadStudentsAndExams()">
+                <select id="class_id" onchange="loadStudentsAndExams()">
                     <option value="">-- Select Class --</option>
                     <%
-                    try(Connection con = DBUtil.getConnection(); 
-                        Statement st = con.createStatement(); 
-                        ResultSet rs = st.executeQuery("SELECT class_id, class_name FROM classes")) {
-                        while(rs.next()){
+                        try (Connection con = DBUtil.getConnection();
+                             Statement st = con.createStatement();
+                             ResultSet rs = st.executeQuery("SELECT class_id, class_name FROM classes")) {
+                            while (rs.next()) {
                     %>
-                        <option value="<%=rs.getInt("class_id")%>"><%=rs.getString("class_name")%></option>
-                    <% }} catch(Exception e) {} %>
+                    <option value="<%=rs.getInt("class_id")%>"><%=rs.getString("class_name")%></option>
+                    <% }} catch (Exception e) {} %>
                 </select>
             </div>
         </div>
@@ -222,10 +257,7 @@ function calculateAllRows() {
         <div class="table-wrapper">
             <div id="dataArea"></div>
         </div>
-
-        
     </form>
 </div>
-
 </body>
 </html>

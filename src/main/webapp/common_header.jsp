@@ -8,115 +8,120 @@
         response.sendRedirect("login.jsp");
         return;
     }
-
-    String role = (String) sess.getAttribute("role");
     String user = (String) sess.getAttribute("username");
 %>
 
 <style>
-
-.ams-header {
+/* Specificity locking: using .ams-header prefix for everything */
+header.ams-header {
     box-sizing: border-box;
     font-family: 'Inter', "Segoe UI", Roboto, sans-serif;
-    background: #0f2a4d;
-    border-bottom: 3px solid #38bdf8; /* Accent border */
+    background: #0f2a4d !important; /* Force background */
+    border-bottom: 2px solid #38bdf8 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
 }
 
 .ams-header .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 12px 24px;
+    padding: 5px 20px; /* High density padding */
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: 45px;
 }
-
 
 .ams-header .brand-box {
     display: flex;
     flex-direction: column;
-    border-left: 4px solid #fbbf24; 
-    padding-left: 15px;
+    border-left: 3px solid #fbbf24;
+    padding-left: 10px;
+    text-align: left;
 }
 
 .ams-header .school-name {
-    color: #fbbf24; 
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+    color: #fbbf24 !important; 
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
     text-transform: uppercase;
     line-height: 1.1;
+    display: block;
 }
 
 .ams-header .system-name {
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 400;
-    letter-spacing: 1px;
+    color: #ffffff !important;
+    font-size: 0.7rem !important;
     opacity: 0.9;
+    margin-top: -1px;
+    display: block;
 }
 
-
-.ams-header nav ul {
-    list-style: none;
-    display: flex;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
+/* Scoped navigation to prevent other pages from changing it */
+.ams-header nav.ams-nav {
+    display: block !important;
 }
 
-.ams-header nav ul li a {
-    text-decoration: none;
-    color: #e5e7eb;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 14px;
+.ams-header nav.ams-nav ul {
+    list-style: none !important;
+    display: flex !important;
+    gap: 2px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+}
+
+.ams-header nav.ams-nav ul li {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+}
+
+.ams-header nav.ams-nav ul li a {
+    text-decoration: none !important;
+    color: #e5e7eb !important;
+    font-size: 11px !important; /* Compact text */
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
     border-radius: 4px;
     transition: all 0.2s ease;
+    display: block;
 }
 
-.ams-header nav ul li a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #38bdf8;
+.ams-header nav.ams-nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #38bdf8 !important;
 }
-
 
 .ams-header .user-info {
     display: flex;
     align-items: center;
-    gap: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 6px 16px;
-    border-radius: 50px;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 3px 12px;
+    border-radius: 4px;
 }
 
 .ams-header .user-name {
-    color: #ffffff;
-    font-size: 13px;
+    color: #ffffff !important;
+    font-size: 11px;
     font-weight: 600;
 }
 
 .ams-header .logout-btn {
-    color: #fca5a5;
-    font-size: 13px;
+    color: #fca5a5 !important;
+    font-size: 11px;
     font-weight: 700;
-    text-decoration: none;
-    padding-left: 12px;
+    text-decoration: none !important;
+    padding-left: 10px;
     border-left: 1px solid rgba(255,255,255,0.2);
 }
 
-.ams-header .logout-btn:hover {
-    color: #ef4444;
-}
-
-
-@media(max-width: 1024px) {
-    .ams-header .nav-container {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    .ams-header .brand-box { border-left: none; padding-left: 0; }
+@media(max-width: 1100px) {
+    .ams-header .nav-container { flex-direction: column; padding: 10px; }
+    .ams-header nav.ams-nav ul { flex-wrap: wrap; justify-content: center; }
 }
 </style>
 
@@ -128,13 +133,14 @@
             <span class="system-name">Admissions Management System</span>
         </div>
 
-        <nav>
+        <nav class="ams-nav">
             <ul>
                 <li><a href="dashboard">Home</a></li>
                 <li><a href="admission">Enquiries</a></li>
+                <li><a href="admission_report.jsp">Dashboard</a></li>
                 <li><a href="enter_marks.jsp">Exam</a></li>
                 <li><a href="marks_report.jsp">Tabulation</a></li>
-                <li><a href="ApproveAdmission.jsp">Approve Admission</a></li>
+                <li><a href="ApproveAdmission.jsp">Approval</a></li>
                 <li><a href="Capcity.jsp">Vacancy</a></li>
                 <li><a href="student_tc_update.jsp">TC Update</a></li>
             </ul>
