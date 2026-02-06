@@ -16,13 +16,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admission Insights | Executive Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-   <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission Insights | Executive Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
 :root {
     --primary: #6366f1;
     --primary-light: #eef2ff;
@@ -31,239 +32,160 @@
     --text-main: #334155;
     --text-muted: #64748b;
     --border: #e5e7eb;
-    --success: #10b981;
     --accent: #f59e0b;
 }
 
-/* Base */
-body { 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    background-color: var(--bg-body); 
-    color: var(--text-main); 
-    margin: 0; 
-    line-height: 1.4;
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-body);
+    margin: 0;
+    color: var(--text-main);
 }
 
-/* Header */
-.ams-header { 
-    background: #ffffff; 
-    border-bottom: 1px solid var(--border);
-    padding: 0 16px;
-}
-.nav-container { 
-    max-width: 1400px; 
-    margin: 0 auto; 
-    height: 60px;
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-}
-.brand-box { 
-    border-left: 3px solid var(--primary); 
-    padding-left: 12px; 
-}
-.school-name { 
-    color: #0f172a; 
-    font-size: 1rem; 
-    font-weight: 800; 
-}
-.system-name { 
-    color: var(--text-muted); 
-    font-size: 0.7rem; 
-    font-weight: 500; 
+.main-content {
+    padding: 24px 16px;
+    max-width: 1400px;
+    margin: auto;
 }
 
-nav ul { 
-    list-style: none; 
-    display: flex; 
-    gap: 6px; 
-    margin: 0; 
-    padding: 0; 
-}
-nav ul li a { 
-    text-decoration: none; 
-    color: var(--text-muted); 
-    font-size: 12px; 
-    font-weight: 600; 
-    padding: 6px 10px; 
-    border-radius: 6px; 
-}
-nav ul li a:hover { 
-    background: var(--primary-light); 
-    color: var(--primary); 
+.page-title h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 20px;
 }
 
-/* Content */
-.main-content { 
-    padding: 24px 16px; 
-    max-width: 1400px; 
-    margin: auto; 
-}
-.page-title h1 { 
-    font-size: 22px; 
-    font-weight: 800; 
-    color: #0f172a; 
-    margin-bottom: 20px; 
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-/* Dashboard Cards (slightly tight) */
-.stats-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-    gap: 16px; 
-    margin-bottom: 24px; 
-}
-.stat-card { 
-    background: var(--surface); 
-    padding: 16px; 
-    border-radius: 10px; 
-    border: 1px solid var(--border);
-}
-.stat-label { 
-    font-size: 12px; 
-    font-weight: 600; 
-    color: var(--text-muted); 
-    margin-bottom: 8px; 
-}
-.stat-value { 
-    font-size: 26px; 
-    font-weight: 800; 
-    color: #0f172a; 
-}
-.icon-box { 
-    width: 36px; 
-    height: 36px; 
-    border-radius: 8px; 
-    font-size: 16px; 
-}
-
-/* ===== TABLES – COMPACT ADMIN STYLE ===== */
-
-.table-container { 
+.stat-card {
     background: var(--surface);
-    border-radius: 6px;
     border: 1px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 16px;
 }
 
-.table-header { 
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.table-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+
+.table-header {
     padding: 10px 14px;
     border-bottom: 1px solid var(--border);
-}
-.table-header h3 { 
-    margin: 0; 
-    font-size: 14px; 
-    font-weight: 700; 
-    color: #0f172a; 
+    background: #f8fafc;
 }
 
-/* Table Core */
-table { 
-    width: 100%; 
+.table-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+table {
+    width: 100%;
     border-collapse: collapse;
 }
 
-/* Header cells */
-th { 
+th {
     background: #f8fafc;
     padding: 8px 12px;
-    font-weight: 700;
+    font-size: 10px;
     text-transform: uppercase;
     color: var(--text-muted);
-    font-size: 10px;
-    letter-spacing: 0.4px;
-    text-align: left;
     border-bottom: 1px solid var(--border);
 }
 
-/* Data cells */
-td { 
+td {
     padding: 6px 12px;
     border-bottom: 1px solid var(--border);
     font-size: 13px;
-    vertical-align: middle;
 }
 
-/* First column emphasis */
-.col-main { 
+.col-main {
     font-weight: 700;
-    color: #0f172a;
     background: #fafafa;
-    width: 180px;
 }
 
-/* Values */
-.val-total { 
-    font-size: 14px;
+.val-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.val-total {
+    font-size: 16px;        
+    font-weight: 800;
+    color: #0f172a;
+    min-width: 30px;
+}
+
+.gender-pill {
+    display: flex;
+    gap: 6px;
+    font-size: 11px;          
     font-weight: 700;
-    color: #1e293b;
-    display: block;
+    line-height: 1;
 }
 
-/* Gender pills – tight */
-.gender-pill { 
-    display: inline-flex;
-    gap: 4px;
-    margin-top: 2px;
-    padding: 1px 6px;
-    background: #f1f5f9;
-    border-radius: 4px;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--text-muted);
+.gender-pill span {
+    padding: 3px 6px;
+    border-radius: 6px;
 }
-.text-m { color: var(--primary); }
-.text-f { color: #ec4899; }
 
-/* Total column */
-.total-cell { 
-    background: #f5f3ff !important;
+.text-m {
+    color: #2563eb;
+    background: #eef2ff;
+}
+
+.text-f {
+    color: #db2777;
+    background: #fdf2f8;
+}
+
+.total-cell {
+    background: #f5f3ff;
     border-left: 2px solid #c7d2fe;
 }
-.total-cell .val-total { 
-    color: var(--primary);
+
+.footer-summary td {
+    background: #1e293b;
+    color: #fff;
+    font-weight: 700;
 }
 
-/* Footer summary */
-.footer-summary { 
-    background: #1e293b;
-}
-.footer-summary td { 
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 13px;
-    padding: 8px 12px;
+.icon-box {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 4px;
+    margin-right: 6px;
 }
 </style>
 </head>
+
 <body>
 
-<header class="ams-header">
-    <div class="nav-container">
-        <div class="brand-box">
-            <span class="school-name">Sandur Residential School</span>
-            <span class="system-name">Admissions Management System</span>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="dashboard">Home</a></li>
-                <li><a href="admission">Enquiries</a></li>
-                <li><a href="admission_report.jsp">Dashboard</a></li>
-                <li><a href="enter_marks.jsp">Exam</a></li>
-                <li><a href="marks_report.jsp">Tabulation</a></li>
-                <li><a href="ApproveAdmission.jsp">Approval</a></li>
-            </ul>
-        </nav>
-        <div style="font-weight: 700; font-size: 13px;">
-            <span style="color: var(--text-muted)">Welcome, </span> <%= user %>
-        </div>
-    </div>
-</header>
+<jsp:include page="common_header.jsp" />
 
 <main class="main-content">
     <%
-        // Java Logic remains identical to your processing
         Connection conn = null;
         int g_d_app_m=0, g_d_app_f=0, g_d_att_m=0, g_d_att_f=0, g_d_adm_m=0, g_d_adm_f=0;
         int g_r_app_m=0, g_r_app_f=0, g_r_att_m=0, g_r_att_f=0, g_r_adm_m=0, g_r_adm_f=0;
@@ -354,33 +276,33 @@ td {
             <tbody>
                 <tr>
                     <td class="col-main">Dayscholars</td>
-                    <td><span class="val-total"><%=g_d_app_m+g_d_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_app_m%>M</span> / <span class="text-f"><%=g_d_app_f%>F</span></div></td>
-                    <td><span class="val-total"><%=g_d_att_m+g_d_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_att_m%>M</span> / <span class="text-f"><%=g_d_att_f%>F</span></div></td>
-                    <td><span class="val-total"><%=(g_d_app_m+g_d_app_f)-(g_d_att_m+g_d_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_d_app_m-g_d_att_m%>M</span> / <span class="text-f"><%=g_d_app_f-g_d_att_f%>F</span></div></td>
-                    <td class="total-cell"><span class="val-total"><%=g_d_adm_m+g_d_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_adm_m%>M</span> / <span class="text-f"><%=g_d_adm_f%>F</span></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_d_app_m+g_d_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_app_m%> M</span><span class="text-f"><%=g_d_app_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_d_att_m+g_d_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_att_m%> M</span><span class="text-f"><%=g_d_att_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=(g_d_app_m+g_d_app_f)-(g_d_att_m+g_d_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_d_app_m-g_d_att_m%> M</span><span class="text-f"><%=g_d_app_f-g_d_att_f%> F</span></div></div></td>
+                    <td class="total-cell"><div class="val-wrap"><span class="val-total"><%=g_d_adm_m+g_d_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_d_adm_m%> M</span><span class="text-f"><%=g_d_adm_f%> F</span></div></div></td>
                 </tr>
                 <tr>
                     <td class="col-main">Residential</td>
-                    <td><span class="val-total"><%=g_r_app_m+g_r_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_app_m%>M</span> / <span class="text-f"><%=g_r_app_f%>F</span></div></td>
-                    <td><span class="val-total"><%=g_r_att_m+g_r_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_att_m%>M</span> / <span class="text-f"><%=g_r_att_f%>F</span></div></td>
-                    <td><span class="val-total"><%=(g_r_app_m+g_r_app_f)-(g_r_att_m+g_r_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_r_app_m-g_r_att_m%>M</span> / <span class="text-f"><%=g_r_app_f-g_r_att_f%>F</span></div></td>
-                    <td class="total-cell"><span class="val-total"><%=g_r_adm_m+g_r_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_adm_m%>M</span> / <span class="text-f"><%=g_r_adm_f%>F</span></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_r_app_m+g_r_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_app_m%> M</span><span class="text-f"><%=g_r_app_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_r_att_m+g_r_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_att_m%> M</span><span class="text-f"><%=g_r_att_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=(g_r_app_m+g_r_app_f)-(g_r_att_m+g_r_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_r_app_m-g_r_att_m%> M</span><span class="text-f"><%=g_r_app_f-g_r_att_f%> F</span></div></div></td>
+                    <td class="total-cell"><div class="val-wrap"><span class="val-total"><%=g_r_adm_m+g_r_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_r_adm_m%> M</span><span class="text-f"><%=g_r_adm_f%> F</span></div></div></td>
                 </tr>
                 <tr>
                     <td class="col-main">Semi-Residential</td>
-                    <td><span class="val-total"><%=g_s_app_m+g_s_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_app_m%>M</span> / <span class="text-f"><%=g_s_app_f%>F</span></div></td>
-                    <td><span class="val-total"><%=g_s_att_m+g_s_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_att_m%>M</span> / <span class="text-f"><%=g_s_att_f%>F</span></div></td>
-                    <td><span class="val-total"><%=(g_s_app_m+g_s_app_f)-(g_s_att_m+g_s_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_s_app_m-g_s_att_m%>M</span> / <span class="text-f"><%=g_s_app_f-g_s_att_f%>F</span></div></td>
-                    <td class="total-cell"><span class="val-total"><%=g_s_adm_m+g_s_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_adm_m%>M</span> / <span class="text-f"><%=g_s_adm_f%>F</span></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_s_app_m+g_s_app_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_app_m%> M</span><span class="text-f"><%=g_s_app_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=g_s_att_m+g_s_att_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_att_m%> M</span><span class="text-f"><%=g_s_att_f%> F</span></div></div></td>
+                    <td><div class="val-wrap"><span class="val-total"><%=(g_s_app_m+g_s_app_f)-(g_s_att_m+g_s_att_f)%></span><div class="gender-pill"><span class="text-m"><%=g_s_app_m-g_s_att_m%> M</span><span class="text-f"><%=g_s_app_f-g_s_att_f%> F</span></div></div></td>
+                    <td class="total-cell"><div class="val-wrap"><span class="val-total"><%=g_s_adm_m+g_s_adm_f%></span><div class="gender-pill"><span class="text-m"><%=g_s_adm_m%> M</span><span class="text-f"><%=g_s_adm_f%> F</span></div></div></td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr class="footer-summary">
-                    <td style="border-bottom-left-radius: 20px;">GRAND TOTAL</td>
+                    <td>GRAND TOTAL</td>
                     <td><%=g_t_app%></td>
                     <td><%=g_t_att%></td>
                     <td><%=g_t_app-g_t_att%></td>
-                    <td style="border-bottom-right-radius: 20px; background: #4f46e5;"><%=g_t_adm%></td>
+                    <td style="background: #4f46e5;"><%=g_t_adm%></td>
                 </tr>
             </tfoot>
         </table>
@@ -402,10 +324,10 @@ td {
                 <c:forEach var="row" items="${reportData}">
                     <tr>
                         <td class="col-main">${row.cls}</td>
-                        <td><span class="val-total">${row.dam + row.daf}</span><div class="gender-pill"><span class="text-m">${row.dam}M</span> / <span class="text-f">${row.daf}F</span></div></td>
-                        <td><span class="val-total">${row.dtm + row.dtf}</span><div class="gender-pill"><span class="text-m">${row.dtm}M</span> / <span class="text-f">${row.dtf}F</span></div></td>
-                        <td><span class="val-total">${(row.dam + row.daf) - (row.dtm + row.dtf)}</span><div class="gender-pill"><span class="text-m">${row.dam - row.dtm}M</span> / <span class="text-f">${row.daf - row.dtf}F</span></div></td>
-                        <td class="total-cell"><span class="val-total">${row.dadm + row.dadf}</span><div class="gender-pill"><span class="text-m">${row.dadm}M</span> / <span class="text-f">${row.dadf}F</span></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${row.dam + row.daf}</span><div class="gender-pill"><span class="text-m">${row.dam} M</span><span class="text-f">${row.daf} F</span></div></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${row.dtm + row.dtf}</span><div class="gender-pill"><span class="text-m">${row.dtm} M</span><span class="text-f">${row.dtf} F</span></div></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${(row.dam + row.daf) - (row.dtm + row.dtf)}</span><div class="gender-pill"><span class="text-m">${row.dam - row.dtm} M</span><span class="text-f">${row.daf - row.dtf} F</span></div></div></td>
+                        <td class="total-cell"><div class="val-wrap"><span class="val-total">${row.dadm + row.dadf}</span><div class="gender-pill"><span class="text-m">${row.dadm} M</span><span class="text-f">${row.dadf} F</span></div></div></td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -428,10 +350,10 @@ td {
                 <c:forEach var="row" items="${reportData}">
                     <tr>
                         <td class="col-main">${row.cls}</td>
-                        <td><span class="val-total">${row.ram + row.raf}</span><div class="gender-pill"><span class="text-m">${row.ram}M</span> / <span class="text-f">${row.raf}F</span></div></td>
-                        <td><span class="val-total">${row.rtm + row.rtf}</span><div class="gender-pill"><span class="text-m">${row.rtm}M</span> / <span class="text-f">${row.rtf}F</span></div></td>
-                        <td><span class="val-total">${(row.ram + row.raf) - (row.rtm + row.rtf)}</span><div class="gender-pill"><span class="text-m">${row.ram - row.rtm}M</span> / <span class="text-f">${row.raf - row.rtf}F</span></div></td>
-                        <td class="total-cell"><span class="val-total">${row.radm + row.radf}</span><div class="gender-pill"><span class="text-m">${row.radm}M</span> / <span class="text-f">${row.radf}F</span></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${row.ram + row.raf}</span><div class="gender-pill"><span class="text-m">${row.ram} M</span><span class="text-f">${row.raf} F</span></div></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${row.rtm + row.rtf}</span><div class="gender-pill"><span class="text-m">${row.rtm} M</span><span class="text-f">${row.rtf} F</span></div></div></td>
+                        <td><div class="val-wrap"><span class="val-total">${(row.ram + row.raf) - (row.rtm + row.rtf)}</span><div class="gender-pill"><span class="text-m">${row.ram - row.rtm} M</span><span class="text-f">${row.raf - row.rtf} F</span></div></div></td>
+                        <td class="total-cell"><div class="val-wrap"><span class="val-total">${row.radm + row.radf}</span><div class="gender-pill"><span class="text-m">${row.radm} M</span><span class="text-f">${row.radf} F</span></div></div></td>
                     </tr>
                 </c:forEach>
             </tbody>

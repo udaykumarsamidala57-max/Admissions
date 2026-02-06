@@ -12,53 +12,73 @@
 %>
 
 <style>
-/* Specificity locking: using .ams-header prefix for everything */
+/* ================================
+   HARD ISOLATION LAYER
+   ================================ */
+header.ams-header,
+header.ams-header * {
+    box-sizing: border-box !important;
+    font-family: 'Inter', "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* ================================
+   HEADER ROOT
+   ================================ */
 header.ams-header {
-    box-sizing: border-box;
-    font-family: 'Inter', "Segoe UI", Roboto, sans-serif;
-    background: #0f2a4d !important; /* Force background */
+    background: #0f2a4d !important;
     border-bottom: 2px solid #38bdf8 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    display: block !important;
 }
 
+/* ================================
+   CONTAINER
+   ================================ */
 .ams-header .nav-container {
     max-width: 1400px;
-    margin: 0 auto;
-    padding: 5px 20px; /* High density padding */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 45px;
+    margin: 0 auto !important;
+    padding: 5px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 45px !important;
 }
 
+/* ================================
+   BRAND
+   ================================ */
 .ams-header .brand-box {
-    display: flex;
-    flex-direction: column;
-    border-left: 3px solid #fbbf24;
-    padding-left: 10px;
-    text-align: left;
+    display: flex !important;
+    flex-direction: column !important;
+    border-left: 3px solid #fbbf24 !important;
+    padding-left: 10px !important;
 }
 
 .ams-header .school-name {
-    color: #fbbf24 !important; 
+    color: #fbbf24 !important;
     font-size: 0.95rem !important;
     font-weight: 800 !important;
-    text-transform: uppercase;
-    line-height: 1.1;
-    display: block;
+    text-transform: uppercase !important;
+    line-height: 1.1 !important;
 }
 
 .ams-header .system-name {
     color: #ffffff !important;
     font-size: 0.7rem !important;
-    opacity: 0.9;
-    margin-top: -1px;
-    display: block;
+    opacity: 0.9 !important;
 }
 
-/* Scoped navigation to prevent other pages from changing it */
+/* ================================
+   NAVIGATION (FRAMEWORK SAFE)
+   ================================ */
+.ams-header nav.ams-nav,
+.ams-header nav.ams-nav ul,
+.ams-header nav.ams-nav li {
+    all: revert;
+}
+
 .ams-header nav.ams-nav {
     display: block !important;
 }
@@ -69,65 +89,70 @@ header.ams-header {
     gap: 2px !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: none !important;
-}
-
-.ams-header nav.ams-nav ul li {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: none !important;
-    border: none !important;
 }
 
 .ams-header nav.ams-nav ul li a {
     text-decoration: none !important;
     color: #e5e7eb !important;
-    font-size: 11px !important; /* Compact text */
+    font-size: 11px !important;
     font-weight: 600 !important;
     padding: 4px 8px !important;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    display: block;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    display: block !important;
 }
 
 .ams-header nav.ams-nav ul li a:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255,255,255,0.1) !important;
     color: #38bdf8 !important;
 }
 
+/* ================================
+   USER INFO
+   ================================ */
 .ams-header .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 3px 12px;
-    border-radius: 4px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: rgba(0,0,0,0.3) !important;
+    padding: 3px 12px !important;
+    border-radius: 4px !important;
 }
 
 .ams-header .user-name {
     color: #ffffff !important;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 11px !important;
+    font-weight: 600 !important;
 }
 
 .ams-header .logout-btn {
     color: #fca5a5 !important;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 11px !important;
+    font-weight: 700 !important;
     text-decoration: none !important;
-    padding-left: 10px;
-    border-left: 1px solid rgba(255,255,255,0.2);
+    padding-left: 10px !important;
+    border-left: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-@media(max-width: 1100px) {
-    .ams-header .nav-container { flex-direction: column; padding: 10px; }
-    .ams-header nav.ams-nav ul { flex-wrap: wrap; justify-content: center; }
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 1100px) {
+    .ams-header .nav-container {
+        flex-direction: column !important;
+        padding: 10px !important;
+    }
+
+    .ams-header nav.ams-nav ul {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
 }
 </style>
 
 <header class="ams-header">
     <div class="nav-container">
-        
+
         <div class="brand-box">
             <span class="school-name">Sandur Residential School</span>
             <span class="system-name">Admissions Management System</span>
