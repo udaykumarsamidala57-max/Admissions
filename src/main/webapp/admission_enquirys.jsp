@@ -16,7 +16,6 @@
    String role = (String) sess.getAttribute("role");
    String User = (String) sess.getAttribute("username");
 
-   
    CachedRowSet rs = (CachedRowSet)request.getAttribute("list");
    List<Map<String, Object>> dataList = new ArrayList<>();
    
@@ -32,25 +31,18 @@
            dataList.add(row);
        }
 
-       // Updated sorting: Sort only by application_no
        Collections.sort(dataList, new Comparator<Map<String, Object>>() {
            @Override
            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
                Object obj1 = m1.get("application_no");
                Object obj2 = m2.get("application_no");
-               
                String app1 = (obj1 == null) ? "" : obj1.toString().trim();
                String app2 = (obj2 == null) ? "" : obj2.toString().trim();
-               
                boolean empty1 = app1.isEmpty();
                boolean empty2 = app2.isEmpty();
-
-               // Push empty/null application numbers to the bottom
                if (empty1 && !empty2) return 1;
                if (!empty1 && empty2) return -1;
                if (empty1 && empty2) return 0;
-
-               // Standard alphabetical/numeric sort for the rest
                return app1.compareTo(app2);
            }
        });
@@ -64,9 +56,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* Existing Styles Maintained */
 *{ box-sizing: border-box; font-family: Inter, Segoe UI, Arial, sans-serif; }
-body{ margin: 0; min-height: 100vh; background: radial-gradient(circle at 10% 10%, #dbeafe 0%, transparent 40%), radial-gradient(circle at 90% 20%, #fef3c7 0%, transparent 40%), linear-gradient(135deg,#eef2ff,#f8fafc); }
+body{ margin: 0; height: 100vh; display: flex; flex-direction: column; background: radial-gradient(circle at 10% 10%, #dbeafe 0%, transparent 40%), radial-gradient(circle at 90% 20%, #fef3c7 0%, transparent 40%), linear-gradient(135deg,#eef2ff,#f8fafc); overflow: hidden; }
 .summary-bar{ display: flex; gap: 14px; flex-wrap: wrap; width: 100%; margin: 14px; }
 .summary-card{ flex: 1; min-width: 170px; padding: 14px 18px; border-radius: 16px; color: #ffffff; box-shadow: 0 10px 24px rgba(0,0,0,0.18); transition: 0.25s ease; }
 .summary-card:hover{ transform: translateY(-4px) scale(1.03); }
@@ -81,12 +72,12 @@ body{ margin: 0; min-height: 100vh; background: radial-gradient(circle at 10% 10
 .btn.red{ background: linear-gradient(135deg,#ef4444,#b91c1c); }
 .btn.blue{ background: linear-gradient(135deg,#2563eb,#1e40af); }
 .btn.gray{ background: linear-gradient(135deg,#64748b,#475569); }
-.filters{ margin: 14px; padding: 14px 16px; display: flex; gap: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 18px; box-shadow: 0 10px 24px rgba(0,0,0,0.12); }
+.filters{ margin: 14px; padding: 14px 16px; display: flex; gap: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 18px; box-shadow: 0 10px 24px rgba(0,0,0,0.12); flex-shrink: 0; }
 .filters input, .filters select{ padding: 9px 12px; border-radius: 12px; border: 1px solid #c7d2fe; font-size: 14px; outline: none; }
 .filters input:focus, .filters select:focus{ border-color: #4338ca; box-shadow: 0 0 6px rgba(67,56,202,0.4); }
-.table-wrap{ padding: 14px; overflow-x: auto; }
-table{ width: 100%; border-collapse: collapse; background: #ffffff; font-size: 14px; }
-table thead th{ background: #0f2a4d; color: #ffffff; padding: 9px 10px; font-weight: 700; border: 1px solid #0b1f3a; text-align: left; white-space: nowrap; }
+.table-wrap{ padding: 0 14px 14px 14px; overflow: auto; flex-grow: 1; }
+table{ width: 100%; border-collapse: separate; border-spacing: 0; background: #ffffff; font-size: 14px; }
+table thead th{ position: sticky; top: 0; background: #0f2a4d; color: #ffffff; padding: 12px 10px; font-weight: 700; border: 1px solid #0b1f3a; text-align: left; white-space: nowrap; z-index: 10; }
 table tbody td{ padding: 8px 10px; border: 1px solid #000000; color: #000000; vertical-align: middle; }
 table tbody td:first-child{ text-align: center; width: 60px; }
 table tbody td:nth-child(2), table tbody td:nth-child(5){ font-weight: 600; }
@@ -103,7 +94,6 @@ table tbody tr:hover{ background: #f1f5f9; }
 .form-grid label{ font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #1e293b; }
 .form-grid input{ padding: 9px 12px; border-radius: 12px; border: 1px solid #c7d2fe; font-size: 14px; outline: none; transition: 0.2s ease; }
 .form-grid input:focus{ border-color: #4338ca; box-shadow: 0 0 6px rgba(67,56,202,0.4); }
-/* Highlight for records without App No */
 .empty-app-row { background-color: #fff9db !important; }
 @media(max-width: 900px){ .form-grid{ grid-template-columns: 1fr 1fr; } }
 @media(max-width: 600px){ .form-grid{ grid-template-columns: 1fr; } }
@@ -203,7 +193,6 @@ window.onload = function(){ calculateAges(); applyFilters(); }
 </head>
 
 <body>
-<div class="app">
 <jsp:include page="common_header.jsp" />
 
 <div class="filters">
@@ -272,7 +261,6 @@ if(dataList != null){
     <td><%=rowMap.get("segment")%></td>
     <td><%=rowMap.get("exam_date")%></td>
     <td><%= isNoApp ? "<b style='color:red;'>Not Attended</b>" : appNo %></td>
-
     <td>
         <button class="btn blue" onclick="openEditModal(<%=id%>)">Edit</button>
         <% if("Global".equalsIgnoreCase(role)){ %>
@@ -339,7 +327,5 @@ if(dataList != null){
 </div>
 </div>
 <% } } %>
-
-</div>
 </body>
 </html>
