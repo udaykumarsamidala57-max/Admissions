@@ -81,41 +81,15 @@ select, input[type="date"] {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
+
+.marksTable td:first-child, .marksTable th:first-child {
+    width: 50px;
+    font-weight: 600;
+}
 </style>
 
 <script>
-/* ----------------- EXCEL EXPORT (UNCHANGED) ----------------- */
-function exportToExcel() {
-    const table = document.querySelector("#dataArea table");
-    if (!table) {
-        alert("Please load data first!");
-        return;
-    }
 
-    const ws_data = [];
-    const rows = table.querySelectorAll("tr");
-
-    rows.forEach(row => {
-        const rowData = [];
-        row.querySelectorAll("th, td").forEach(cell => {
-            const input = cell.querySelector("input");
-            rowData.push(input ? input.value : cell.innerText.trim());
-        });
-        ws_data.push(rowData);
-    });
-
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    ws['!cols'] = ws_data[0].map(() => ({ wch: 15 }));
-
-    XLSX.utils.book_append_sheet(wb, ws, "Marks_Report");
-
-    const className = document.getElementById("class_id").selectedOptions[0].text;
-    const date = document.getElementById("exam_date").value;
-    XLSX.writeFile(wb, `Marks_${className}_${date}.xlsx`);
-}
-
-/* ----------------- FIX TABLE + ADD PERCENT COLUMN ----------------- */
 function fixTable() {
     const table = document.querySelector("#dataArea table");
     if (!table) return;
@@ -128,10 +102,15 @@ function fixTable() {
     }
 
     const headerRow = thead.rows[0];
+
     if (headerRow.cells[headerRow.cells.length - 1].innerText.trim() !== "Percentage") {
         const th = document.createElement("th");
         th.innerText = "Percentage";
         headerRow.appendChild(th);
+    }
+
+    if (headerRow.cells[0].innerText.trim() !== "S.No") {
+        headerRow.cells[0].innerText = "S.No";
     }
 
     table.querySelectorAll("tbody tr").forEach(row => {
@@ -143,13 +122,11 @@ function fixTable() {
     });
 }
 
-/* ----------------- LOAD DATA ----------------- */
+
 function loadStudentsAndExams() {
     const classId = class_id.value;
     const examDate = exam_date.value;
     if (!classId || !examDate) return;
-
-    exam_date_hidden.value = examDate;
 
     const xhr = new XMLHttpRequest();
     xhr.open("GET", "MarksReport?class_id=" + classId + "&exam_date=" + examDate, true);
@@ -158,12 +135,12 @@ function loadStudentsAndExams() {
         fixTable();
         hookChangeTracking();
         calculateAllRows();
-        sortByPercentageDesc(); // 🔥 SORT HERE
+        sortByPercentageDesc(); 
     };
     xhr.send();
 }
 
-/* ----------------- CHANGE TRACKING ----------------- */
+
 function hookChangeTracking() {
     document.querySelectorAll(".markInput, .remarksBox").forEach(inp => {
         inp.dataset.old = inp.value;
@@ -174,7 +151,7 @@ function hookChangeTracking() {
     });
 }
 
-/* ----------------- CALCULATIONS ----------------- */
+
 function calculateRow(input) {
     const row = input.closest("tr");
     let total = 0, maxTotal = 0;
@@ -184,38 +161,41 @@ function calculateRow(input) {
     row.querySelectorAll(".markInput").forEach(inp => {
         total += parseFloat(inp.value) || 0;
 
-        const headerText = headers[inp.parentElement.cellIndex].innerText;
-        const match = headerText.match(/\((\d+)\)/);
-        if (match) maxTotal += parseFloat(match[1]);
+        const headerCell = headers[inp.parentElement.cellIndex];
+        if (headerCell) {
+            const match = headerCell.innerText.match(/\((\d+)\)/);
+            if (match) maxTotal += parseFloat(match[1]);
+        }
     });
 
     row.querySelector(".totalBox").value = total;
-    if (maxTotal > 0) {
-        row.querySelector(".percentBox").value = ((total / maxTotal) * 100).toFixed(2);
-    }
+    row.querySelector(".percentBox").value =
+        maxTotal > 0 ? ((total / maxTotal) * 100).toFixed(2) : 0;
 
-    sortByPercentageDesc(); // 🔥 LIVE SORT
+    sortByPercentageDesc(); 
 }
 
 function calculateAllRows() {
     document.querySelectorAll(".markInput").forEach(calculateRow);
 }
 
-/* ----------------- SORT BY PERCENTAGE DESC ----------------- */
-function sortByPercentageDesc() {
-    const table = document.querySelector("#dataArea table");
-    if (!table) return;
 
-    const tbody = table.querySelector("tbody");
-    const rows = Array.from(tbody.querySelectorAll("tr"));
+function sortByPercentageDesc() {
+    const tbody = document.querySelector("#dataArea table tbody");
+    if (!tbody) return;
+
+    const rows = Array.from(tbody.rows);
 
     rows.sort((a, b) => {
-        const pa = parseFloat(a.querySelector(".percentBox")?.value) || 0;
-        const pb = parseFloat(b.querySelector(".percentBox")?.value) || 0;
-        return pb - pa;
+        const pA = parseFloat(a.querySelector(".percentBox").value) || 0;
+        const pB = parseFloat(b.querySelector(".percentBox").value) || 0;
+        return pB - pA; // DESC
     });
 
-    rows.forEach(r => tbody.appendChild(r));
+    rows.forEach((row, index) => {
+        tbody.appendChild(row);
+        row.cells[0].innerText = index + 1; // ✅ NEW SERIAL NUMBER
+    });
 }
 </script>
 </head>
@@ -235,7 +215,6 @@ function sortByPercentageDesc() {
             <div>
                 <label>Exam Date</label><br>
                 <input type="date" id="exam_date" value="<%= java.time.LocalDate.now() %>" onchange="loadStudentsAndExams()">
-                <input type="hidden" id="exam_date_hidden">
             </div>
 
             <div>
