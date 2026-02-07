@@ -12,13 +12,13 @@
     try {
         con = DBUtil.getConnection();
 
-      
+        /* DOWNLOAD */
         if ("download".equals(action)) {
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("Content-Disposition",
                     "attachment; filename=class_capacity.csv");
 
-            out.println("ID,Class,Boarders,Day Scholars,Total,Girls,Boys");
+            out.println("ID,Class,Boarders,Day Scholars,Girls,Boys,Total");
 
             ps = con.prepareStatement("SELECT * FROM class_capacity ORDER BY id");
             rs = ps.executeQuery();
@@ -29,15 +29,15 @@
                         rs.getString("class_name") + "," +
                         rs.getInt("boarders") + "," +
                         rs.getInt("day_scholars") + "," +
-                        rs.getInt("total_capacity") + "," +
                         rs.getString("boarders_girls") + "," +
-                        rs.getString("boarders_boys")
+                        rs.getString("boarders_boys") + "," +
+                        rs.getInt("total_capacity")
                 );
             }
             return;
         }
 
-       
+        /* ADD */
         if ("add".equals(action)) {
             ps = con.prepareStatement(
                 "INSERT INTO class_capacity " +
@@ -50,13 +50,13 @@
             ps.setString(1, request.getParameter("class_name"));
             ps.setInt(2, boarders);
             ps.setInt(3, dayScholars);
-            ps.setInt(4, boarders + dayScholars); // auto total
+            ps.setInt(4, boarders + dayScholars);
             ps.setString(5, request.getParameter("boarders_girls"));
             ps.setString(6, request.getParameter("boarders_boys"));
             ps.executeUpdate();
         }
 
-       
+        /* UPDATE */
         if ("update".equals(action)) {
             ps = con.prepareStatement(
                 "UPDATE class_capacity SET " +
@@ -69,7 +69,7 @@
 
             ps.setInt(1, boarders);
             ps.setInt(2, dayScholars);
-            ps.setInt(3, boarders + dayScholars); // auto total
+            ps.setInt(3, boarders + dayScholars);
             ps.setString(4, request.getParameter("boarders_girls"));
             ps.setString(5, request.getParameter("boarders_boys"));
             ps.setInt(6, Integer.parseInt(request.getParameter("id")));
@@ -84,7 +84,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Class Capacity Management</title>
+<title>Class Capacity Management</title>
 
 <style>
 body {
@@ -94,7 +94,7 @@ body {
 }
 
 table {
-    width: 50%;
+    width: 55%;
     margin: 20px auto;
     background: #fff;
     border-radius: 8px;
@@ -136,7 +136,6 @@ td:last-child {
     text-align: center;
 }
 </style>
-
 </head>
 
 <body>
@@ -144,7 +143,7 @@ td:last-child {
 <jsp:include page="common_header.jsp" />
 <h1 align="center">Class Capacity</h1>
 
-
+<!-- ADD FORM -->
 <form method="post">
 <input type="hidden" name="action" value="add">
 <table>
@@ -154,6 +153,7 @@ td:last-child {
     <th>Day Scholars</th>
     <th>Girls</th>
     <th>Boys</th>
+    <th>Total</th>
     <th>Action</th>
 </tr>
 <tr>
@@ -162,27 +162,28 @@ td:last-child {
     <td><input type="number" name="day_scholars" required></td>
     <td><input type="text" name="boarders_girls"></td>
     <td><input type="text" name="boarders_boys"></td>
+    <td style="text-align:center;">Auto</td>
     <td><button class="btn add">Add</button></td>
 </tr>
 </table>
 </form>
 
-
+<!-- DOWNLOAD -->
 <form method="post" style="text-align:center;">
     <input type="hidden" name="action" value="download">
     <button class="btn edit">Download Excel</button>
 </form>
 
-
+<!-- LIST -->
 <table>
 <tr>
     <th>ID</th>
     <th>Class</th>
     <th>Boarders</th>
     <th>Day Scholars</th>
-    <th>Total</th>
     <th>Girls</th>
     <th>Boys</th>
+    <th>Total</th>
     <th>Action</th>
 </tr>
 
@@ -199,17 +200,15 @@ td:last-child {
     <td><%= rs.getString("class_name") %></td>
     <td><input type="number" name="boarders" value="<%= rs.getInt("boarders") %>"></td>
     <td><input type="number" name="day_scholars" value="<%= rs.getInt("day_scholars") %>"></td>
-    <td><%= rs.getInt("total_capacity") %></td>
     <td><input type="text" name="boarders_girls" value="<%= rs.getString("boarders_girls") %>"></td>
     <td><input type="text" name="boarders_boys" value="<%= rs.getString("boarders_boys") %>"></td>
+    <td><b><%= rs.getInt("total_capacity") %></b></td>
     <td>
         <button class="btn edit" name="action" value="update">Update</button>
     </td>
 </tr>
 </form>
-<%
-    }
-%>
+<% } %>
 
 </table>
 

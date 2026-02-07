@@ -8,133 +8,164 @@
         response.sendRedirect("login.jsp");
         return;
     }
-
-    String role = (String) sess.getAttribute("role");
     String user = (String) sess.getAttribute("username");
 %>
 
 <style>
-
-.ams-header {
-    box-sizing: border-box;
-    font-family: 'Inter', "Segoe UI", Roboto, sans-serif;
-    background: #0f2a4d;
-    border-bottom: 3px solid #38bdf8; /* Accent border */
+/* ================================
+   HARD ISOLATION LAYER
+   ================================ */
+header.ams-header,
+header.ams-header * {
+    box-sizing: border-box !important;
+    font-family: 'Inter', "Segoe UI", Roboto, sans-serif !important;
 }
 
+/* ================================
+   HEADER ROOT
+   ================================ */
+header.ams-header {
+    background: #0f2a4d !important;
+    border-bottom: 2px solid #38bdf8 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+/* ================================
+   CONTAINER
+   ================================ */
 .ams-header .nav-container {
     max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    margin: 0 auto !important;
+    padding: 5px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 45px !important;
 }
 
-
+/* ================================
+   BRAND
+   ================================ */
 .ams-header .brand-box {
-    display: flex;
-    flex-direction: column;
-    border-left: 4px solid #fbbf24; 
-    padding-left: 15px;
+    display: flex !important;
+    flex-direction: column !important;
+    border-left: 3px solid #fbbf24 !important;
+    padding-left: 10px !important;
 }
 
 .ams-header .school-name {
-    color: #fbbf24; 
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    line-height: 1.1;
+    color: #fbbf24 !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    line-height: 1.1 !important;
 }
 
 .ams-header .system-name {
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 400;
-    letter-spacing: 1px;
-    opacity: 0.9;
+    color: #ffffff !important;
+    font-size: 0.7rem !important;
+    opacity: 0.9 !important;
 }
 
-
-.ams-header nav ul {
-    list-style: none;
-    display: flex;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
+/* ================================
+   NAVIGATION (FRAMEWORK SAFE)
+   ================================ */
+.ams-header nav.ams-nav,
+.ams-header nav.ams-nav ul,
+.ams-header nav.ams-nav li {
+    all: revert;
 }
 
-.ams-header nav ul li a {
-    text-decoration: none;
-    color: #e5e7eb;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 14px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+.ams-header nav.ams-nav {
+    display: block !important;
 }
 
-.ams-header nav ul li a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #38bdf8;
+.ams-header nav.ams-nav ul {
+    list-style: none !important;
+    display: flex !important;
+    gap: 2px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
+.ams-header nav.ams-nav ul li a {
+    text-decoration: none !important;
+    color: #e5e7eb !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    display: block !important;
+}
 
+.ams-header nav.ams-nav ul li a:hover {
+    background: rgba(255,255,255,0.1) !important;
+    color: #38bdf8 !important;
+}
+
+/* ================================
+   USER INFO
+   ================================ */
 .ams-header .user-info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 6px 16px;
-    border-radius: 50px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: rgba(0,0,0,0.3) !important;
+    padding: 3px 12px !important;
+    border-radius: 4px !important;
 }
 
 .ams-header .user-name {
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
 }
 
 .ams-header .logout-btn {
-    color: #fca5a5;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    padding-left: 12px;
-    border-left: 1px solid rgba(255,255,255,0.2);
+    color: #fca5a5 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    padding-left: 10px !important;
+    border-left: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-.ams-header .logout-btn:hover {
-    color: #ef4444;
-}
-
-
-@media(max-width: 1024px) {
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 1100px) {
     .ams-header .nav-container {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
+        flex-direction: column !important;
+        padding: 10px !important;
     }
-    .ams-header .brand-box { border-left: none; padding-left: 0; }
+
+    .ams-header nav.ams-nav ul {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
 }
 </style>
 
 <header class="ams-header">
     <div class="nav-container">
-        
+
         <div class="brand-box">
             <span class="school-name">Sandur Residential School</span>
             <span class="system-name">Admissions Management System</span>
         </div>
 
-        <nav>
+        <nav class="ams-nav">
             <ul>
                 <li><a href="dashboard">Home</a></li>
                 <li><a href="admission">Enquiries</a></li>
+                <li><a href="admission_report.jsp">Dashboard</a></li>
                 <li><a href="enter_marks.jsp">Exam</a></li>
                 <li><a href="marks_report.jsp">Tabulation</a></li>
-                <li><a href="ApproveAdmission.jsp">Approve Admission</a></li>
+                <li><a href="ApproveAdmission.jsp">Approval</a></li>
                 <li><a href="Capcity.jsp">Vacancy</a></li>
                 <li><a href="student_tc_update.jsp">TC Update</a></li>
             </ul>
