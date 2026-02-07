@@ -12,18 +12,14 @@
 %>
 
 <style>
-/* ================================
-   HARD ISOLATION LAYER
-   ================================ */
+
 header.ams-header,
 header.ams-header * {
     box-sizing: border-box !important;
     font-family: 'Inter', "Segoe UI", Roboto, sans-serif !important;
 }
 
-/* ================================
-   HEADER ROOT
-   ================================ */
+
 header.ams-header {
     background: #0f2a4d !important;
     border-bottom: 2px solid #38bdf8 !important;
@@ -33,9 +29,7 @@ header.ams-header {
     display: block !important;
 }
 
-/* ================================
-   CONTAINER
-   ================================ */
+
 .ams-header .nav-container {
     max-width: 1400px;
     margin: 0 auto !important;
@@ -46,9 +40,7 @@ header.ams-header {
     min-height: 45px !important;
 }
 
-/* ================================
-   BRAND
-   ================================ */
+
 .ams-header .brand-box {
     display: flex !important;
     flex-direction: column !important;
@@ -70,9 +62,7 @@ header.ams-header {
     opacity: 0.9 !important;
 }
 
-/* ================================
-   NAVIGATION (FRAMEWORK SAFE)
-   ================================ */
+
 .ams-header nav.ams-nav,
 .ams-header nav.ams-nav ul,
 .ams-header nav.ams-nav li {
@@ -107,9 +97,7 @@ header.ams-header {
     color: #38bdf8 !important;
 }
 
-/* ================================
-   USER INFO
-   ================================ */
+
 .ams-header .user-info {
     display: flex !important;
     align-items: center !important;
@@ -134,9 +122,7 @@ header.ams-header {
     border-left: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-/* ================================
-   RESPONSIVE
-   ================================ */
+
 @media (max-width: 1100px) {
     .ams-header .nav-container {
         flex-direction: column !important;
