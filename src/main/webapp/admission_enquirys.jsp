@@ -1,6 +1,7 @@
 <%@ page import="javax.sql.rowset.CachedRowSet" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page import="java.util.*" %>
+<%@ page import="java.util.regex.*" %>
 <%@ page session="true" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
@@ -36,14 +37,39 @@
            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
                Object obj1 = m1.get("application_no");
                Object obj2 = m2.get("application_no");
-               String app1 = (obj1 == null) ? "" : obj1.toString().trim();
-               String app2 = (obj2 == null) ? "" : obj2.toString().trim();
-               boolean empty1 = app1.isEmpty();
-               boolean empty2 = app2.isEmpty();
-               if (empty1 && !empty2) return 1;
-               if (!empty1 && empty2) return -1;
-               if (empty1 && empty2) return 0;
-               return app1.compareTo(app2);
+               
+               String s1 = (obj1 == null) ? "" : obj1.toString().trim();
+               String s2 = (obj2 == null) ? "" : obj2.toString().trim();
+               
+               if (s1.isEmpty() && !s2.isEmpty()) return 1;
+               if (!s1.isEmpty() && s2.isEmpty()) return -1;
+               if (s1.isEmpty() && s2.isEmpty()) return 0;
+
+               // Natural Sort Logic: Character then Number
+               return compareNatural(s1, s2);
+           }
+
+           private int compareNatural(String s1, String s2) {
+               Pattern p = Pattern.compile("(\\d+)|(\\D+)");
+               Matcher m1 = p.matcher(s1);
+               Matcher m2 = p.matcher(s2);
+
+               while (m1.find() && m2.find()) {
+                   String part1 = m1.group();
+                   String part2 = m2.group();
+                   int result;
+
+                   if (Character.isDigit(part1.charAt(0)) && Character.isDigit(part2.charAt(0))) {
+                       long n1 = Long.parseLong(part1);
+                       long n2 = Long.parseLong(part2);
+                       result = Long.compare(n1, n2);
+                   } else {
+                       result = part1.compareToIgnoreCase(part2);
+                   }
+
+                   if (result != 0) return result;
+               }
+               return s1.length() - s2.length();
            }
        });
    }
