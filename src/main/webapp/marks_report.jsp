@@ -89,7 +89,62 @@ select, input[type="date"] {
 </style>
 
 <script>
+function exportToExcel() {
+    const table = document.querySelector("#dataArea table");
+    if (!table) {
+        alert("No data available to export!");
+        return;
+    }
 
+    // Capture the date and class name
+    const dateInput = document.getElementById("exam_date").value;
+    const classSelect = document.getElementById("class_id");
+    const className = classSelect.options[classSelect.selectedIndex].text;
+
+    // 1. Create Workbook and Header Data
+    const wb = XLSX.utils.book_new();
+    
+    // Formatting the Header Rows
+    const customHeader = [
+        ["SANDU RESIDENTIAL SCHOOL"],
+        ["Entrance Test Date: " + dateInput + " | AY: 2026-27"],
+        ["Class: " + className],
+        [] // Space before table
+    ];
+
+    // 2. Create worksheet from the headers
+    const ws = XLSX.utils.aoa_to_sheet(customHeader);
+
+    // 3. Add the Table starting at A5
+    // Use raw: false to ensure numbers and percentages are formatted correctly
+    XLSX.utils.sheet_add_dom(ws, table, { origin: "A5", raw: false });
+
+    // 4. ALIGNMENT & WIDTHS
+    // Set column widths (characters) - Adjusting for S.No, Name, Marks, etc.
+    const wscols = [
+        { wch: 8 },  // S.No
+        { wch: 25 }, // Student Name (make wider)
+        { wch: 12 }, // Subject 1
+        { wch: 12 }, // Subject 2
+        { wch: 12 }, // Subject 3
+        { wch: 10 }, // Total
+        { wch: 15 }  // Percentage
+    ];
+    ws['!cols'] = wscols;
+
+    // 5. MERGE HEADER CELLS (Center the School Name across 7 columns)
+    if(!ws['!merges']) ws['!merges'] = [];
+    ws['!merges'].push(
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // Merge School Name
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }, // Merge Date/AY info
+        { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }  // Merge Class info
+    );
+
+    // 6. Generate File
+    XLSX.utils.book_append_sheet(wb, ws, "Marks Report");
+    const fileName = "Entrance_Test_" + className.replace(/\s+/g, '_') + ".xlsx";
+    XLSX.writeFile(wb, fileName);
+}
 function fixTable() {
     const table = document.querySelector("#dataArea table");
     if (!table) return;
