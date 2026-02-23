@@ -266,6 +266,7 @@ function sortByPercentageDesc() {
     </div>
 
     <form>
+    
         <div class="filter-bar">
             <div>
                 <label>Exam Date</label><br>
