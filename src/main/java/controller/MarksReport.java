@@ -42,20 +42,27 @@ public class MarksReport extends HttpServlet {
 
         try {
             int classId = Integer.parseInt(classIdRaw);
+            String className = "Unknown Class"; // Placeholder
 
             try (Connection con = DBUtil.getConnection()) {
 
-                // 1. LOAD EXAMS AND BASE MAX MARKS
+                // 1. LOAD EXAMS, BASE MAX MARKS, AND CLASS NAME
                 ArrayList<Integer> examIds = new ArrayList<>();
                 ArrayList<String> examNames = new ArrayList<>();
                 ArrayList<Integer> maxMarksArray = new ArrayList<>();
                 int baseGrandTotalMax = 0;
 
-                String examQuery = "SELECT exam_id, exam_name, max_marks FROM class_exams WHERE class_id=?";
+                // Join with classes table to get the name
+                String examQuery = "SELECT ce.exam_id, ce.exam_name, ce.max_marks, c.class_name " +
+                                 "FROM class_exams ce " +
+                                 "JOIN classes c ON ce.class_id = c.class_id " +
+                                 "WHERE ce.class_id=?";
+                
                 try (PreparedStatement psExams = con.prepareStatement(examQuery)) {
                     psExams.setInt(1, classId);
                     try (ResultSet rsExams = psExams.executeQuery()) {
                         while (rsExams.next()) {
+                            className = rsExams.getString("class_name"); // Set the class name
                             int maxM = rsExams.getInt("max_marks");
                             examIds.add(rsExams.getInt("exam_id"));
                             examNames.add(rsExams.getString("exam_name"));
@@ -65,20 +72,29 @@ public class MarksReport extends HttpServlet {
                     }
                 }
 
+                // Fallback if no exams found but class exists
                 if (examIds.isEmpty()) {
-                    out.println("<p style='color:red;'>No exams defined for this class.</p>");
+                    String nameFallback = "SELECT class_name FROM classes WHERE class_id=?";
+                    try (PreparedStatement psN = con.prepareStatement(nameFallback)) {
+                        psN.setInt(1, classId);
+                        try (ResultSet rsN = psN.executeQuery()) {
+                            if (rsN.next()) className = rsN.getString("class_name");
+                        }
+                    }
+                    out.println("<p style='color:red;'>No exams defined for " + className + ".</p>");
                     return;
                 }
 
-                // 2. LOAD MARKS AND CALCULATE MULTIPLIER (How many dates exist)
+                // 2. LOAD MARKS AND CALCULATE MULTIPLIER
                 HashMap<String, Integer> marksMap = new HashMap<>();
-                int dateCount = 1; // Default for single date
+                int dateCount = 1;
 
                 if (isAllDates) {
-                    // Count unique exam dates present in the marks table for this class/students
-                    String countDatesQuery = "SELECT COUNT(DISTINCT exam_date) as d_count FROM student_exam_marks " +
-                                            "WHERE enquiry_id IN (SELECT enquiry_id FROM admission_enquiry ae " +
-                                            "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) WHERE c.class_id=?)";
+                    String countDatesQuery = "SELECT COUNT(DISTINCT sem.exam_date) as d_count " +
+                                            "FROM student_exam_marks sem " +
+                                            "JOIN admission_enquiry ae ON sem.enquiry_id = ae.enquiry_id " +
+                                            "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
+                                            "WHERE c.class_id=?";
                     try (PreparedStatement psCount = con.prepareStatement(countDatesQuery)) {
                         psCount.setInt(1, classId);
                         try (ResultSet rsCount = psCount.executeQuery()) {
@@ -89,9 +105,14 @@ public class MarksReport extends HttpServlet {
                         }
                     }
 
-                    String marksQuery = "SELECT enquiry_id, exam_id, SUM(marks_obtained) as marks_obtained " +
-                                        "FROM student_exam_marks GROUP BY enquiry_id, exam_id";
+                    String marksQuery = "SELECT sem.enquiry_id, sem.exam_id, SUM(sem.marks_obtained) as marks_obtained " +
+                                        "FROM student_exam_marks sem " +
+                                        "JOIN admission_enquiry ae ON sem.enquiry_id = ae.enquiry_id " +
+                                        "JOIN classes c ON TRIM(ae.class_of_admission) = TRIM(c.class_name) " +
+                                        "WHERE c.class_id=? " +
+                                        "GROUP BY sem.enquiry_id, sem.exam_id";
                     try (PreparedStatement psAllMarks = con.prepareStatement(marksQuery)) {
+                        psAllMarks.setInt(1, classId);
                         try (ResultSet rsAllMarks = psAllMarks.executeQuery()) {
                             while (rsAllMarks.next()) {
                                 String key = rsAllMarks.getInt("enquiry_id") + "_" + rsAllMarks.getInt("exam_id");
@@ -112,7 +133,6 @@ public class MarksReport extends HttpServlet {
                     }
                 }
 
-                // Adjust Max Marks based on number of dates aggregated
                 int finalGrandTotalMax = baseGrandTotalMax * dateCount;
 
                 // 3. LOAD STUDENTS
@@ -156,28 +176,28 @@ public class MarksReport extends HttpServlet {
                             s.put("place", rs.getString("place_from"));
                             s.put("remarks", rs.getString("entrance_remarks"));
 
-                            int total = 0;
+                            int studentTotal = 0;
                             for (int exId : examIds) {
                                 Integer m = marksMap.get(enqId + "_" + exId);
-                                total += (m == null) ? 0 : m;
+                                studentTotal += (m == null) ? 0 : m;
                             }
                             
-                            double perc = (finalGrandTotalMax > 0) ? ((double) total / finalGrandTotalMax) * 100 : 0;
+                            double perc = (finalGrandTotalMax > 0) ? ((double) studentTotal / finalGrandTotalMax) * 100 : 0;
                             
-                            s.put("total_marks", total);
+                            s.put("total_marks", studentTotal);
                             s.put("percentage", perc);
                             studentList.add(s);
                         }
                     }
                 }
 
-                // 4. SORT BY PERCENTAGE DESCENDING
+                // 4. SORT
                 Collections.sort(studentList, (a, b) -> Double.compare((double) b.get("percentage"), (double) a.get("percentage")));
 
-                // 5. PRINT HTML TABLE
-                out.println("<h3>Report for Class ID: " + classId + " (" + (isAllDates ? "All Dates [Aggregated x" + dateCount + "]" : "Date: " + examDate) + ")</h3>");
+                // 5. OUTPUT TABLE - Using className instead of classId
+                out.println("<h3>Report for Class: " + className + " (" + (isAllDates ? "All Dates [Aggregated x" + dateCount + "]" : "Date: " + examDate) + ")</h3>");
                 out.println("<table class='marksTable' border='1' style='border-collapse:collapse; text-align:center; font-size:11px;'>");
-                out.println("<thead><tr style='background:#ddd;'>");
+                out.println("<thead><tr style='background:#0f2a4d; color:white;'>");
                 out.println("<th>Rank</th><th>Enq ID</th><th>App No</th><th>Student Name</th><th>DOB</th><th>Age (31-May-26)</th><th>Type</th><th>Segment</th>");
                 out.println("<th>Father Name</th><th>Father Occ</th><th>Father Org</th><th>Father Mob</th>");
                 out.println("<th>Mother Name</th><th>Mother Occ</th><th>Mother Org</th><th>Mother Mob</th>");
@@ -229,12 +249,7 @@ public class MarksReport extends HttpServlet {
                     out.println("<td><b>" + String.format("%.2f", (double)s.get("percentage")) + "%</b></td>");
                     out.println("</tr>");
                 }
-
-                if (studentList.isEmpty()) {
-                    out.println("<tr><td colspan='40'>No records found.</td></tr>");
-                }
                 out.println("</tbody></table>");
-
             }
         } catch (Exception e) {
             e.printStackTrace();
